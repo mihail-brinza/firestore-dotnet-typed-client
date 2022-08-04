@@ -6,6 +6,7 @@ namespace Firestore.Typed.Client;
 
 public class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentSnapshot<TDocument>>
 {
+    private readonly Lazy<TDocument?> _objectInitializer;
     private readonly DocumentSnapshot _snapshot;
 
     public TypedDocumentSnapshot(DocumentSnapshot snapshot, TypedDocumentReference<TDocument> reference)
@@ -28,28 +29,32 @@ public class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentSnapshot
         ? _objectInitializer.Value!
         : throw new Exception($"Could not find object with id {_snapshot.Id}");
 
-    private readonly Lazy<TDocument?> _objectInitializer;
     public TypedDocumentReference<TDocument> Reference { get; }
 
     /// <summary>
-    /// Whether or not the document exists.
+    ///     Whether or not the document exists.
     /// </summary>
     public bool Exists => _snapshot.Exists;
 
     /// <summary>
-    /// The creation time of the document if it exists, or null otherwise.
+    ///     The creation time of the document if it exists, or null otherwise.
     /// </summary>
     public Timestamp? CreateTime => _snapshot.CreateTime;
 
     /// <summary>
-    /// The update time of the document if it exists, or null otherwise.
+    ///     The update time of the document if it exists, or null otherwise.
     /// </summary>
     public Timestamp? UpdateTime => _snapshot.UpdateTime;
 
     /// <summary>
-    /// The time at which this snapshot was read.
+    ///     The time at which this snapshot was read.
     /// </summary>
     public Timestamp ReadTime => _snapshot.ReadTime;
+
+    public bool Equals(TypedDocumentSnapshot<TDocument>? other)
+    {
+        return _snapshot.Equals(other?._snapshot);
+    }
 
     public TField GetValue<TField>(Expression<Func<TDocument, TField>> field)
     {
@@ -69,14 +74,9 @@ public class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentSnapshot
         return _snapshot.ContainsField(field.ToString());
     }
 
-    public bool Equals(TypedDocumentSnapshot<TDocument>? other)
-    {
-        return other != null && _snapshot.Equals(other._snapshot);
-    }
-
     public override bool Equals(object? obj)
     {
-        return _snapshot.Equals(obj);
+        return Equals(obj as TypedDocumentSnapshot<TDocument>);
     }
 
     public override int GetHashCode()

@@ -9,13 +9,18 @@ public class TypedDocumentReference<TDocument> : IEquatable<TypedDocumentReferen
 {
     private readonly DocumentReference _documentReference;
 
+    public TypedDocumentReference(DocumentReference documentReference)
+    {
+        _documentReference = documentReference;
+    }
+
     public string Id => _documentReference.Id;
     public string Path => _documentReference.Path;
     public FirestoreDb Database => _documentReference.Database;
 
-    public TypedDocumentReference(DocumentReference documentReference)
+    public int CompareTo(TypedDocumentReference<TDocument>? other)
     {
-        _documentReference = documentReference;
+        return _documentReference.CompareTo(other?._documentReference);
     }
 
     public bool Equals(TypedDocumentReference<TDocument>? other)
@@ -23,12 +28,11 @@ public class TypedDocumentReference<TDocument> : IEquatable<TypedDocumentReferen
         return _documentReference.Equals(other?._documentReference);
     }
 
-    public int CompareTo(TypedDocumentReference<TDocument>? other)
-    {
-        return _documentReference.CompareTo(other?._documentReference);
-    }
 
-    public override string ToString() => _documentReference.ToString();
+    public override string ToString()
+    {
+        return _documentReference.ToString();
+    }
 
     public async Task<TypedDocumentSnapshot<TDocument>> GetSnapshotAsync(CancellationToken cancellationToken = default)
     {
@@ -79,7 +83,7 @@ public class TypedDocumentReference<TDocument> : IEquatable<TypedDocumentReferen
         CancellationToken cancellationToken = default)
     {
         return _documentReference.Listen(
-            ((snapshot, token) => callback(new TypedDocumentSnapshot<TDocument>(snapshot, this), token)),
+            (snapshot, token) => callback(new TypedDocumentSnapshot<TDocument>(snapshot, this), token),
             cancellationToken);
     }
 
@@ -88,13 +92,13 @@ public class TypedDocumentReference<TDocument> : IEquatable<TypedDocumentReferen
         CancellationToken cancellationToken = default)
     {
         return _documentReference.Listen(
-            (snapshot => callback(new TypedDocumentSnapshot<TDocument>(snapshot, this))),
-            cancellationToken: cancellationToken);
+            snapshot => callback(new TypedDocumentSnapshot<TDocument>(snapshot, this)),
+            cancellationToken);
     }
 
     public override bool Equals(object? obj)
     {
-        return _documentReference.Equals(obj);
+        return Equals(obj as TypedDocumentReference<TDocument>);
     }
 
     public override int GetHashCode()
