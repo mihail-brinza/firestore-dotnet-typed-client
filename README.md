@@ -48,16 +48,18 @@ client:
 #### Create Database
 
 Creating the database remains equal to the official client:
+
 ```csharp
 FirestoreDb db = FirestoreDb.Create(projectId);
 ```
 
-
 #### Create Collection
 
 ```csharp
-CollectionReference collection = db.Collection("users"); // official
+// with Typed Client
+TypedCollectionReference<User> collection = db.TypedCollection<User>("users"); 
 
-CollectionReference collection = db.TypedCollection<User>("users"); // Typed client
+// official way
+CollectionReference collection = db.Collection("users");
 ```
 
