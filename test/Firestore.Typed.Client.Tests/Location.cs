@@ -5,7 +5,7 @@ namespace Firestore.Typed.Client.Tests;
 [FirestoreData]
 public class Location
 {
-    public const string CountryCustomName = "home_countryyy";
+    public const string CountryCustomName = "home_country";
 
     [FirestoreProperty]
     public string City { get; set; }
