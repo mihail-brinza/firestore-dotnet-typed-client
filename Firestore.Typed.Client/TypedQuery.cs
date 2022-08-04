@@ -1,7 +1,4 @@
 using System.Linq.Expressions;
-using System.Transactions;
-
-using Firestore.Typed.Client.Visitor;
 
 using Google.Cloud.Firestore;
 
@@ -14,14 +11,7 @@ public class TypedQuery<TDocument> : IEquatable<TypedQuery<TDocument>>
         _query = query;
     }
 
-    private Query _query;
-
-    private static string GetField(Expression field)
-    {
-        var fieldNameVisitor = new FieldNameVisitor();
-        fieldNameVisitor.Visit(field);
-        return fieldNameVisitor.FieldName;
-    }
+    private readonly Query _query;
 
     public async Task<TypedQuerySnapshot<TDocument>> GetSnapshotAsync(CancellationToken cancellationToken = default)
     {
@@ -31,99 +21,77 @@ public class TypedQuery<TDocument> : IEquatable<TypedQuery<TDocument>>
 
     public TypedQuery<TDocument> WhereEqualTo<TField>(Expression<Func<TDocument, TField>> field, TField value)
     {
-        _query = _query.WhereEqualTo(GetField(field), value);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereEqualTo(field.GetField(), value));
     }
 
     public TypedQuery<TDocument> WhereNotEqualTo<TField>(Expression<Func<TDocument, TField>> field, TField value)
     {
-        // TODO
-        _query = _query.WhereNotEqualTo(GetField(field), value);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereNotEqualTo(field.GetField(), value));
     }
 
     public TypedQuery<TDocument> WhereLessThan<TField>(Expression<Func<TDocument, TField>> field, TField value)
     {
-        // TODO
-        _query = _query.WhereLessThan(GetField(field), value);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereLessThan(field.GetField(), value));
     }
 
     public TypedQuery<TDocument> WhereLessThanOrEqualTo<TField>(Expression<Func<TDocument, TField>> field, TField value)
     {
-        // TODO
-        _query = _query.WhereLessThan(GetField(field), value);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereLessThan(field.GetField(), value));
     }
 
     public TypedQuery<TDocument> WhereGreaterThan<TField>(Expression<Func<TDocument, TField>> field, TField value)
     {
-        // TODO
-        _query = _query.WhereGreaterThan(GetField(field), value);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereGreaterThan(field.GetField(), value));
     }
 
     public TypedQuery<TDocument> WhereGreaterThanOrEqualTo<TField>(
         Expression<Func<TDocument, TField>> field,
         TField value)
     {
-        // TODO
-        _query = _query.WhereGreaterThanOrEqualTo(GetField(field), value);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereGreaterThanOrEqualTo(field.GetField(), value));
     }
 
     public TypedQuery<TDocument> WhereArrayContains<TField>(
         Expression<Func<TDocument, IEnumerable<TField>>> field,
         TField value)
     {
-        // TODO
-        _query = _query.WhereArrayContains(GetField(field), value);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereArrayContains(field.GetField(), value));
     }
 
     public TypedQuery<TDocument> WhereArrayContainsAny<TField>(
         Expression<Func<TDocument, IEnumerable<TField>>> field,
         IEnumerable<TField> values)
     {
-        // TODO
-        _query = _query.WhereArrayContainsAny(GetField(field), values);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereArrayContainsAny(field.GetField(), values));
     }
 
     public TypedQuery<TDocument> WhereIn<TField>(
         Expression<Func<TDocument, TField>> field,
         IEnumerable<TField> values)
     {
-        // TODO
-        _query = _query.WhereIn(GetField(field), values);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereIn(field.GetField(), values));
     }
 
     public TypedQuery<TDocument> WhereNotIn<TField>(
         Expression<Func<TDocument, TField>> field,
         IEnumerable<TField> values)
     {
-        // TODO
-        _query = _query.WhereNotIn(GetField(field), values);
-        return this;
+        return new TypedQuery<TDocument>(_query.WhereNotIn(field.GetField(), values));
     }
 
     public TypedQuery<TDocument> Limit(int limit)
     {
-        _query = _query.Limit(limit);
-        return this;
+        return new TypedQuery<TDocument>(_query.Limit(limit));
     }
 
     public TypedQuery<TDocument> LimitToLast(int limit)
     {
-        _query = _query.LimitToLast(limit);
-        return this;
+        return new TypedQuery<TDocument>(_query.LimitToLast(limit));
     }
 
     public TypedQuery<TDocument> Offset(int limit)
     {
-        _query = _query.Offset(limit);
-        return this;
+        return new TypedQuery<TDocument>(_query.Offset(limit));
     }
 
 

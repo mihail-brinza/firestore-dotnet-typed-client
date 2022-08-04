@@ -58,20 +58,17 @@ public class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentSnapshot
 
     public TField GetValue<TField>(Expression<Func<TDocument, TField>> field)
     {
-        // TODO
-        return _snapshot.GetValue<TField>(field.ToString());
+        return _snapshot.GetValue<TField>(field.GetField());
     }
 
     public bool TryGetValue<TField>(Expression<Func<TDocument, TField>> field, out TField value)
     {
-        // TODO
-        return _snapshot.TryGetValue(field.ToString(), out value);
+        return _snapshot.TryGetValue(field.GetField(), out value);
     }
 
     public bool ContainsField<TField>(Expression<Func<TDocument, TField>> field)
     {
-        // TODO
-        return _snapshot.ContainsField(field.ToString());
+        return _snapshot.ContainsField(field.GetField());
     }
 
     public override bool Equals(object? obj)

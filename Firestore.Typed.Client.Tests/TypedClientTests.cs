@@ -99,6 +99,22 @@ public class TypedClientTests : IAsyncLifetime
         users.Count.Should().Be(2);
     }
 
+
+    [Fact]
+    public async Task Test_TypedSnapshotMethods()
+    {
+        TypedQuerySnapshot<User> users = await Collection
+            .WhereEqualTo(user => user.FirstName, "Ana")
+            .Limit(1)
+            .GetSnapshotAsync()
+            .ConfigureAwait(false);
+
+        users.Count.Should().Be(1);
+
+        users[0].ContainsField(user => user.FirstName).Should().BeTrue();
+        users[0].GetValue(user => user.FirstName).Should().Be("Ana");
+    }
+
     private TypedCollectionReference<User> GetNewUniqueCollection()
     {
         return _db.TypedCollection<User>(Guid.NewGuid() + " - " + DateTime.Now.Ticks);

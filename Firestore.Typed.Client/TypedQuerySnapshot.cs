@@ -23,7 +23,8 @@ public class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentSnapshot
     {
         return new Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>>(
             () => snapshot.Changes.Select(change => new TypedDocumentChange<TDocument>(change)).ToList(),
-            LazyThreadSafetyMode.ExecutionAndPublication);
+            LazyThreadSafetyMode.ExecutionAndPublication
+        );
     }
 
     private static Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> BuildLazyTypedDocuments(QuerySnapshot snapshot)
