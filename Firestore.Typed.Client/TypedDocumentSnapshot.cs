@@ -14,13 +14,13 @@ namespace Firestore.Typed.Client;
 public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentSnapshot<TDocument>>
 {
     private readonly Lazy<TDocument?> _objectInitializer;
-    private readonly DocumentSnapshot _snapshot;
+    internal DocumentSnapshot Snapshot { get; }
 
     public TypedDocumentSnapshot(DocumentSnapshot snapshot, TypedDocumentReference<TDocument> reference)
     {
-        _snapshot          = snapshot;
+        Snapshot           = snapshot;
         Reference          = reference;
-        _objectInitializer = new Lazy<TDocument?>(() => _snapshot.ConvertTo<TDocument>());
+        _objectInitializer = new Lazy<TDocument?>(() => Snapshot.ConvertTo<TDocument>());
     }
 
     public TypedDocumentSnapshot(DocumentSnapshot snapshot) :
@@ -31,12 +31,12 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// <summary>
     /// The ID of the document.
     /// </summary>
-    public string Id => _snapshot.Id;
+    public string Id => Snapshot.Id;
 
     /// <summary>
     /// The database that owns the document.
     /// </summary>
-    public FirestoreDb Database => _snapshot.Database;
+    public FirestoreDb Database => Snapshot.Database;
 
     /// <summary>
     /// The data converted to the specified type. Returns null if object does not exist.
@@ -47,9 +47,9 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// The data converted to the specified type.
     /// <exception cref="DocumentNotFoundException">The document does not exist.</exception>
     /// </summary>
-    public TDocument RequiredObject => _snapshot.Exists
+    public TDocument RequiredObject => Snapshot.Exists
         ? _objectInitializer.Value!
-        : throw new DocumentNotFoundException(_snapshot.Id);
+        : throw new DocumentNotFoundException(Snapshot.Id);
 
     /// <summary>
     /// The full reference to the document.
@@ -59,24 +59,24 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// <summary>
     /// Whether or not the document exists.
     /// </summary>
-    public bool Exists => _snapshot.Exists;
+    public bool Exists => Snapshot.Exists;
 
     /// <summary>
     ///     The creation time of the document if it exists, or null otherwise.
     /// </summary>
-    public Timestamp? CreateTime => _snapshot.CreateTime;
+    public Timestamp? CreateTime => Snapshot.CreateTime;
 
     /// <summary>
     ///     The update time of the document if it exists, or null otherwise.
     /// </summary>
-    public Timestamp? UpdateTime => _snapshot.UpdateTime;
+    public Timestamp? UpdateTime => Snapshot.UpdateTime;
 
     /// <summary>
     ///     The time at which this snapshot was read.
     /// </summary>
-    public Timestamp ReadTime => _snapshot.ReadTime;
+    public Timestamp ReadTime => Snapshot.ReadTime;
 
-    public Dictionary<string, object> ToDictionary() => _snapshot.ToDictionary();
+    public Dictionary<string, object> ToDictionary() => Snapshot.ToDictionary();
 
 
     /// <summary>
@@ -87,7 +87,7 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// <returns>The deserialized value.</returns>
     public TField GetValue<TField>(Expression<Func<TDocument, TField>> field)
     {
-        return _snapshot.GetValue<TField>(field.GetField());
+        return Snapshot.GetValue<TField>(field.GetFieldName());
     }
 
 
@@ -106,7 +106,7 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// <returns>true if the field was found; false otherwise.</returns>
     public bool TryGetValue<TField>(Expression<Func<TDocument, TField>> field, [NotNullWhen(true)] out TField value)
     {
-        return _snapshot.TryGetValue(field.GetField(), out value);
+        return Snapshot.TryGetValue(field.GetFieldName(), out value);
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// <returns>true if the specified path represents a field in the document; false otherwise</returns>
     public bool ContainsField<TField>(Expression<Func<TDocument, TField>> field)
     {
-        return _snapshot.ContainsField(field.GetField());
+        return Snapshot.ContainsField(field.GetFieldName());
     }
 
     /// <inheritdoc />
@@ -129,7 +129,7 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return _snapshot.GetHashCode();
+        return Snapshot.GetHashCode();
     }
 
     /// <summary>
@@ -140,6 +140,6 @@ public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentS
     /// <returns><c>true</c> if this snapshot is equal to <paramref name="other"/>; <c>false</c> otherwise.</returns>
     public bool Equals(TypedDocumentSnapshot<TDocument>? other)
     {
-        return _snapshot.Equals(other?._snapshot);
+        return Snapshot.Equals(other?.Snapshot);
     }
 }

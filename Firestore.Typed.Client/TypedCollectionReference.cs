@@ -33,7 +33,7 @@ public sealed class TypedCollectionReference<TDocument> : TypedQuery<TDocument>,
     /// <summary>
     /// The parent document, or null if this is a root collection.
     /// </summary>
-    public FirestoreDb Database => _collection.Database;
+    public override FirestoreDb Database => _collection.Database;
 
     /// <summary>
     /// The parent document, typed with TParentCollection, or null if this is a root collection.

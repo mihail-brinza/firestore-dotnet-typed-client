@@ -91,7 +91,7 @@ public sealed class TypedDocumentReference<TDocument> : IEquatable<TypedDocument
 
     public TypedCollectionReference<TField> Collection<TField>(Expression<Func<TDocument, TField>> field)
     {
-        return new TypedCollectionReference<TField>(_documentReference.Collection(field.GetField()));
+        return new TypedCollectionReference<TField>(_documentReference.Collection(field.GetFieldName()));
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ public sealed class TypedDocumentReference<TDocument> : IEquatable<TypedDocument
         Precondition? precondition = null,
         CancellationToken cancellationToken = default)
     {
-        return _documentReference.UpdateAsync(field.GetField(), value, precondition, cancellationToken);
+        return _documentReference.UpdateAsync(field.GetFieldName(), value, precondition, cancellationToken);
     }
 
     /// <summary>
@@ -205,11 +205,14 @@ public sealed class TypedDocumentReference<TDocument> : IEquatable<TypedDocument
             cancellationToken);
     }
 
+
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         return Equals(obj as TypedDocumentReference<TDocument>);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         return _documentReference.GetHashCode();
