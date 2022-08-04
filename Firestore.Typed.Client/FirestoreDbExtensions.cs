@@ -8,7 +8,6 @@ public static class FirestoreDbExtensions
         this FirestoreDb firestoreDb,
         string path)
     {
-        CollectionReference collection = firestoreDb.Collection(path);
-        return new TypedCollectionReference<TDocument>(collection);
+        return new TypedCollectionReference<TDocument>(firestoreDb.Collection(path));
     }
 }

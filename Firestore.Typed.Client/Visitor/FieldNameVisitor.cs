@@ -7,9 +7,7 @@ namespace Firestore.Typed.Client.Visitor;
 
 public class FieldNameVisitor : ExpressionVisitor
 {
-    public string FieldName => _fieldName;
-
-    private string _fieldName = string.Empty;
+    public string FieldName { get; private set; } = string.Empty;
 
     private const char FieldSeparator = '.';
     private static readonly Type FirestorePropertyAttribute = typeof(FirestorePropertyAttribute);
@@ -38,11 +36,11 @@ public class FieldNameVisitor : ExpressionVisitor
 
     private void AddToFieldName(string field)
     {
-        _fieldName = field + _fieldName;
+        FieldName = field + FieldName;
     }
 
     private void AddToFieldName(char character)
     {
-        _fieldName = character + _fieldName;
+        FieldName = character + FieldName;
     }
 }

@@ -4,7 +4,7 @@ using Google.Cloud.Firestore;
 
 namespace Firestore.Typed.Client;
 
-public class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentSnapshot<TDocument>>,
+public sealed class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentSnapshot<TDocument>>,
                                              IEquatable<TypedQuerySnapshot<TDocument>>
 {
     private readonly Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> _lazyTypedDocuments;
@@ -59,4 +59,9 @@ public class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentSnapshot
     public int Count => Documents.Count;
 
     public TypedDocumentSnapshot<TDocument> this[int index] => Documents[index];
+
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as TypedQuerySnapshot<TDocument>);
+    }
 }

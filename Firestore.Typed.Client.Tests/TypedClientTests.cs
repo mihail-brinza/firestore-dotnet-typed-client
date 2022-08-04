@@ -115,9 +115,54 @@ public class TypedClientTests : IAsyncLifetime
         users[0].GetValue(user => user.FirstName).Should().Be("Ana");
     }
 
+    [Fact]
+    public async Task Test_TestUpdateAsync_SingleValue()
+    {
+        TypedQuerySnapshot<User> users = await Collection
+            .WhereEqualTo(user => user.FirstName, "Ana")
+            .Limit(1)
+            .GetSnapshotAsync()
+            .ConfigureAwait(false);
+
+        users.Count.Should().Be(1);
+
+        const int newAge = 83;
+        WriteResult _ = await users[0].Reference.UpdateAsync(user => user.Age, newAge)
+            .ConfigureAwait(false);
+
+        TypedDocumentSnapshot<User> snapshot = await users[0].Reference.GetSnapshotAsync().ConfigureAwait(false);
+        snapshot.GetValue(user => user.Age).Should().Be(newAge);
+    }
+
+    [Fact]
+    public async Task Test_TestUpdateAsync_MultipleFields()
+    {
+        TypedQuerySnapshot<User> users = await Collection
+            .WhereEqualTo(user => user.FirstName, "Ana")
+            .Select(user => user.Location)
+            .Limit(1)
+            .GetSnapshotAsync()
+            .ConfigureAwait(false);
+
+        users.Count.Should().Be(1);
+
+        const int newAge = 83;
+        const string newFirstName = "Hannah";
+
+        UpdateDefinition<User> update = new UpdateDefinition<User>()
+            .Set(user => user.Age, newAge)
+            .Set(user => user.FirstName, newFirstName);
+
+        WriteResult _ = await users[0].Reference.UpdateAsync(update).ConfigureAwait(false);
+
+        TypedDocumentSnapshot<User> snapshot = await users[0].Reference.GetSnapshotAsync().ConfigureAwait(false);
+        snapshot.GetValue(user => user.Age).Should().Be(newAge);
+        snapshot.GetValue(user => user.FirstName).Should().Be(newFirstName);
+    }
+
     private TypedCollectionReference<User> GetNewUniqueCollection()
     {
-        return _db.TypedCollection<User>(Guid.NewGuid() + " - " + DateTime.Now.Ticks);
+        return _db.TypedCollection<User>(Guid.NewGuid().ToString());
     }
 
     public async Task InitializeAsync()
