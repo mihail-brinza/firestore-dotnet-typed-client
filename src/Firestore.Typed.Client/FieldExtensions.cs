@@ -7,9 +7,8 @@ namespace Firestore.Typed.Client;
 /// <summary>
 /// Extensions on <see cref="Expression"/>
 /// </summary>
-public static class FieldExtensions
+internal static class FieldExtensions
 {
-    
     /// <summary>
     /// Processes the given <paramref name="field"/> and returns the FieldName
     /// </summary>

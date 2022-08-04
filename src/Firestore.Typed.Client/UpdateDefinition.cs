@@ -6,7 +6,7 @@ namespace Firestore.Typed.Client;
 /// Representation of an update chain, this object allows to chain multiple calls to construct an update command
 /// </summary>
 /// <typeparam name="TDocument">Type of the document to be updated</typeparam>
-public class UpdateDefinition<TDocument>
+public sealed class UpdateDefinition<TDocument>
 {
     /// <summary>
     /// Dictionary that holds the untyped values to be updated

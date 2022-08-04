@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
-
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
@@ -18,11 +17,12 @@
         <PackageReference Include="coverlet.collector" Version="3.1.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+        </PackageReference> 
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Firestore.Typed.Client\Firestore.Typed.Client.csproj" />
+      <ProjectReference Include="..\..\src\Firestore.Typed.Client\Firestore.Typed.Client.csproj" />
     </ItemGroup>
+    
 
 </Project>

@@ -12,7 +12,7 @@ public class FieldNameVisitor : ExpressionVisitor
     private const char FieldSeparator = '.';
     private static readonly Type FirestorePropertyAttribute = typeof(FirestorePropertyAttribute);
     private static readonly Type FirestorePropertyData = typeof(FirestorePropertyAttribute);
-
+    
     protected override Expression VisitMember(MemberExpression node)
     {
         if (FieldName is not { Length: 0 })
