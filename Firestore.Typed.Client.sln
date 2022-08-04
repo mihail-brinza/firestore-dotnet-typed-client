@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firestore.Typed.Client", "Firestore.Typed.Client\Firestore.Typed.Client.csproj", "{091720F4-EBD4-4A21-8BA2-8D1302471223}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{BA4253F0-A7E2-43AB-99F2-3EEB7BA0A39E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firestore.Typed.Client.Tests", "Firestore.Typed.Client.Tests\Firestore.Typed.Client.Tests.csproj", "{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{091720F4-EBD4-4A21-8BA2-8D1302471223}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{091720F4-EBD4-4A21-8BA2-8D1302471223}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{091720F4-EBD4-4A21-8BA2-8D1302471223}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{091720F4-EBD4-4A21-8BA2-8D1302471223}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
