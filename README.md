@@ -8,9 +8,10 @@ please read the [Official Documentation](https://cloud.google.com/dotnet/docs/re
 if you have any question.
 
 ---
-This .NET Firestore client wraps the official Firestore client made available by Google, adding typed queries.
+This .NET Firestore client wraps the official Firestore client made available by Google, adding typed queries (similar
+to how the .NET MongoDb Driver does it).
 Although Firestore is a NoSQL, schemaless, database, we often have the need for a collection to hold a set of documents
-with similar schemas that we define.
+with the same schema that we define using a domain object.
 
 This documentation will have the following data structure as example:
 
@@ -45,7 +46,7 @@ public class Location
 Assuming we have a collection of users with the above schema, we now compare a few examples with the typed and official
 client:
 
-#### Create Database
+### Create Database
 
 Creating the database remains equal to the official client:
 
@@ -53,13 +54,53 @@ Creating the database remains equal to the official client:
 FirestoreDb db = FirestoreDb.Create(projectId);
 ```
 
-#### Create Collection
+### Access Collection
+
+Using **FirestoreDb** you can create a **TypedCollection\<TDocument>** by the path from the database root:
 
 ```csharp
 // with Typed Client
 TypedCollectionReference<User> collection = db.TypedCollection<User>("users"); 
 
-// official way
+// official client
 CollectionReference collection = db.Collection("users");
+```
+
+### Creating a document
+
+A frequent use-case when dealing with collection is to have always the same type of object, for this reason, when we
+have a **TypedCollection\<TDocument>** we can only add documents of type **TDocument** to it.
+Take the next example:
+
+```csharp
+User user = new User
+{
+    FirstName  = "John",
+    SecondName = "Doe",
+    Age        = 10,
+    Location = new Location
+    {
+        City    = "Lisbon",
+        Country = "Portugal"
+    }
+};
+```
+
+#### Official Client
+
+```csharp
+CollectionReference collection = db.Collection("users");
+// AddAsync accepts any object, not only users
+DocumentReference = await collection.AddAsync(user); 
+
+```
+
+#### Typed Client
+
+```csharp
+TypedCollectionReference<User> collection = db.TypedCollection<User>("users");
+// AddAsync only accepts the User type and will not compile with any other type
+TypedDocumentReference<User> document = await collection.AddAsync(user); 
+
 ```
 

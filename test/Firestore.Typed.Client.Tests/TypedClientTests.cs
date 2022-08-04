@@ -145,7 +145,7 @@ public class TypedClientTests : IAsyncLifetime
             .ConfigureAwait(false);
 
         users.Count.Should().Be(1);
-        
+
         const int newAge = 83;
         const string newFirstName = "Hannah";
 
@@ -172,7 +172,7 @@ public class TypedClientTests : IAsyncLifetime
 
     private readonly List<User> _initialUsers = new()
     {
-        new()
+        new User
         {
             FirstName  = "John",
             SecondName = "Doe",

@@ -13,7 +13,7 @@ internal static class FieldExtensions
     /// Processes the given <paramref name="field"/> and returns the FieldName
     /// </summary>
     /// <param name="field">A lambda that selects a field</param>
-    /// <returns>A string containing the fieldname</returns>
+    /// <returns>A string containing the fieldName</returns>
     internal static string GetFieldName(this Expression field)
     {
         var fieldNameVisitor = new FieldNameVisitor();
