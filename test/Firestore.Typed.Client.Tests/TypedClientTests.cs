@@ -170,6 +170,8 @@ public class TypedClientTests : IAsyncLifetime
         await Task.WhenAll(_initialUsers.Select(user => Collection.AddAsync(user))).ConfigureAwait(false);
     }
 
+    
+
     private readonly List<User> _initialUsers = new()
     {
         new User
