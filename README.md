@@ -122,7 +122,7 @@ FirestoreDb db = FirestoreDb.Create(projectId);
 
 ## Access Collection
 
-Using **FirestoreDb** you can create a **TypedCollection\<TDocument>** by the path from the database root:
+Using `FirestoreDb` you can create a `TypedCollection<TDocument>` by the path from the database root:
 
 #### Typed Client
 
@@ -140,7 +140,7 @@ CollectionReference collection = db.Collection("users");
 
 A frequent use-case when dealing with collections is for each collection to hold one specific type of documents, for
 this reason, when we
-have a **TypedCollection\<TDocument>** we can only add documents of type **TDocument** to it.
+have a `TypedCollection<TDocument>` we can only add documents of type `TDocument` to it.
 Take the next example:
 
 ```csharp
@@ -216,6 +216,31 @@ Single Field update:
 
 ```csharp
  WriteResult result = await document.UpdateAsync("Age", 18);
+```
+
+## Replace document data with optional merge
+
+The `SetAsync` method replaces all data by default, however, we can also Merge all fields as shown below:
+
+#### Typed Client
+
+```csharp
+User newUser = new User
+{
+    FirstName  = "John",
+    SecondName = "DoeDoe",
+    Age        = 38
+};
+
+// Replaces document, with non specified field having the default value
+await document.SetAsync(newUser); 
+
+// Sets Age and FirstName, keeping everything else as it was
+await document.SetAsync(newUser, TypedSetOptions<User>.MergeFields(u => u.Age, u => u.FirstName));
+
+// For flexibility, the typed client also keeps the official untyped way of merging, 
+// using anonymous classes
+await document.SetAsync( new { Age = 38, FirstName = "John" }, SetOptions.MergeAll);
 ```
 
 ## Deleting Documents

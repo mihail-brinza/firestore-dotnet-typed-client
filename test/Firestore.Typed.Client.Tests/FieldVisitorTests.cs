@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 
+using Firestore.Typed.Client.Tests.Model;
 using Firestore.Typed.Client.Visitor;
 
 using FluentAssertions;

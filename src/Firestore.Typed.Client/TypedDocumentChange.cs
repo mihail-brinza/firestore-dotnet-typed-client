@@ -3,9 +3,9 @@ using Google.Cloud.Firestore;
 namespace Firestore.Typed.Client;
 
 /// <summary>
-/// A DocumentChange represents a change to the documents matching a query. It contains the document
-/// affected and a the type of change that occurred (added, modified, or removed).
-/// <typeparam name="TDocument">The type of the changed document</typeparam>
+///     A DocumentChange represents a change to the documents matching a query. It contains the document
+///     affected and a the type of change that occurred (added, modified, or removed).
+///     <typeparam name="TDocument">The type of the changed document</typeparam>
 /// </summary>
 public sealed class TypedDocumentChange<TDocument> : IEquatable<TypedDocumentChange<TDocument>>
 {
@@ -19,12 +19,12 @@ public sealed class TypedDocumentChange<TDocument> : IEquatable<TypedDocumentCha
     }
 
     /// <summary>
-    /// The newly added or modified document, or the document that was deleted.
+    ///     The newly added or modified document, or the document that was deleted.
     /// </summary>
     private TypedDocumentSnapshot<TDocument> Document { get; }
 
     /// <summary>
-    /// The type of change that was observed.
+    ///     The type of change that was observed.
     /// </summary>
     public DocumentChange.Type ChangeType => _documentChange.ChangeType;
 
@@ -44,11 +44,11 @@ public sealed class TypedDocumentChange<TDocument> : IEquatable<TypedDocumentCha
 
 
     /// <summary>
-    /// Compares this snapshot with another for equality. Only the document data and document reference
-    /// are considered; the timestamps are ignored.
+    ///     Compares this snapshot with another for equality. Only the document data and document reference
+    ///     are considered; the timestamps are ignored.
     /// </summary>
     /// <param name="other">The snapshot to compare this one with</param>
-    /// <returns><c>true</c> if this snapshot is equal to <paramref name="other"/>; <c>false</c> otherwise.</returns>
+    /// <returns><c>true</c> if this snapshot is equal to <paramref name="other" />; <c>false</c> otherwise.</returns>
     public bool Equals(TypedDocumentChange<TDocument>? other)
     {
         return _documentChange.Equals(other?._documentChange);

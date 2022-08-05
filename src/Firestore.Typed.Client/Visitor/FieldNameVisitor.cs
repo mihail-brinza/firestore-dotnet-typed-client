@@ -7,12 +7,11 @@ namespace Firestore.Typed.Client.Visitor;
 
 public class FieldNameVisitor : ExpressionVisitor
 {
-    public string FieldName { get; private set; } = string.Empty;
-
     private const char FieldSeparator = '.';
     private static readonly Type FirestorePropertyAttribute = typeof(FirestorePropertyAttribute);
     private static readonly Type FirestorePropertyData = typeof(FirestorePropertyAttribute);
-    
+    public string FieldName { get; private set; } = string.Empty;
+
     protected override Expression VisitMember(MemberExpression node)
     {
         if (FieldName is not { Length: 0 })

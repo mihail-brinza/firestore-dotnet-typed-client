@@ -17,12 +17,12 @@
         <PackageReference Include="coverlet.collector" Version="3.1.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
-        </PackageReference> 
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Firestore.Typed.Client\Firestore.Typed.Client.csproj" />
+        <ProjectReference Include="..\..\src\Firestore.Typed.Client\Firestore.Typed.Client.csproj" />
     </ItemGroup>
-    
+
 
 </Project>

@@ -5,14 +5,14 @@ using Google.Cloud.Firestore;
 namespace Firestore.Typed.Client;
 
 /// <summary>
-/// An immutable snapshot of complete query results.
-/// <typeparam name="TDocument">The type of the documents in the snapshot</typeparam>
+///     An immutable snapshot of complete query results.
+///     <typeparam name="TDocument">The type of the documents in the snapshot</typeparam>
 /// </summary>
 public sealed class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentSnapshot<TDocument>>,
                                                     IEquatable<TypedQuerySnapshot<TDocument>>
 {
-    private readonly Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> _lazyTypedDocuments;
     private readonly Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> _lazyTypedChangeList;
+    private readonly Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> _lazyTypedDocuments;
     private readonly QuerySnapshot _snapshot;
 
     public TypedQuerySnapshot(QuerySnapshot snapshot, TypedQuery<TDocument> query)
@@ -23,39 +23,23 @@ public sealed class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentS
         _lazyTypedChangeList = BuildLazyTypedChangeList(snapshot);
     }
 
-    private static Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> BuildLazyTypedChangeList(QuerySnapshot snapshot)
-    {
-        return new Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>>(
-            () => snapshot.Changes.Select(change => new TypedDocumentChange<TDocument>(change)).ToList(),
-            LazyThreadSafetyMode.ExecutionAndPublication
-        );
-    }
-
-    private static Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> BuildLazyTypedDocuments(QuerySnapshot snapshot)
-    {
-        return new Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>>(
-            () => snapshot.Documents
-                .Select(documentSnap => new TypedDocumentSnapshot<TDocument>(documentSnap))
-                .ToList(), LazyThreadSafetyMode.ExecutionAndPublication);
-    }
-
     /// <summary>
-    /// The query producing this snapshot.
+    ///     The query producing this snapshot.
     /// </summary>
     public TypedQuery<TDocument> Query { get; }
 
     /// <summary>
-    /// The documents in the snapshot.
+    ///     The documents in the snapshot.
     /// </summary>
     public IReadOnlyList<TypedDocumentSnapshot<TDocument>> Documents => _lazyTypedDocuments.Value;
 
     /// <summary>
-    /// The changes in the documents.
+    ///     The changes in the documents.
     /// </summary>
     public IReadOnlyList<TypedDocumentChange<TDocument>> Changes => _lazyTypedChangeList.Value;
 
     /// <summary>
-    /// The time at which the snapshot was read.
+    ///     The time at which the snapshot was read.
     /// </summary>
     public Timestamp ReadTime => _snapshot.ReadTime;
 
@@ -77,18 +61,37 @@ public sealed class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentS
     }
 
     /// <summary>
-    /// Returns the number of documents in this query snapshot.
+    ///     Returns the number of documents in this query snapshot.
     /// </summary>
     /// <value>The number of documents in this query snapshot.</value>
     public int Count => Documents.Count;
 
     /// <summary>
-    /// Returns the document snapshot with the specified index within this query snapshot.
+    ///     Returns the document snapshot with the specified index within this query snapshot.
     /// </summary>
     /// <param name="index">The index of the document to return.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0, or greater than or equal to <see cref="Count"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     <paramref name="index" /> is less than 0, or greater than or equal to
+    ///     <see cref="Count" />.
+    /// </exception>
     /// <returns>The document snapshot with the specified index within this query snapshot.</returns>
     public TypedDocumentSnapshot<TDocument> this[int index] => Documents[index];
+
+    private static Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> BuildLazyTypedChangeList(QuerySnapshot snapshot)
+    {
+        return new Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>>(
+            () => snapshot.Changes.Select(change => new TypedDocumentChange<TDocument>(change)).ToList(),
+            LazyThreadSafetyMode.ExecutionAndPublication
+        );
+    }
+
+    private static Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> BuildLazyTypedDocuments(QuerySnapshot snapshot)
+    {
+        return new Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>>(
+            () => snapshot.Documents
+                .Select(documentSnap => new TypedDocumentSnapshot<TDocument>(documentSnap))
+                .ToList(), LazyThreadSafetyMode.ExecutionAndPublication);
+    }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

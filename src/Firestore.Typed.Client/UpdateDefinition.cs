@@ -3,18 +3,18 @@ using System.Linq.Expressions;
 namespace Firestore.Typed.Client;
 
 /// <summary>
-/// Representation of an update chain, this object allows to chain multiple calls to construct an update command
+///     Representation of an update chain, this object allows to chain multiple calls to construct an update command
 /// </summary>
 /// <typeparam name="TDocument">Type of the document to be updated</typeparam>
 public sealed class UpdateDefinition<TDocument>
 {
     /// <summary>
-    /// Dictionary that holds the untyped values to be updated
+    ///     Dictionary that holds the untyped values to be updated
     /// </summary>
     internal IDictionary<string, object?> UpdateValues { get; } = new Dictionary<string, object?>();
 
     /// <summary>
-    /// Defines a new field to be set using a typed lambda expression
+    ///     Defines a new field to be set using a typed lambda expression
     /// </summary>
     /// <param name="field">Lambda expression that allows to type safely select field</param>
     /// <param name="value">New value to assign to the selected property</param>

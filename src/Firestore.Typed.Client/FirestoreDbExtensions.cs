@@ -3,12 +3,12 @@
 namespace Firestore.Typed.Client;
 
 /// <summary>
-/// Extension on the official <see cref="FirestoreDb"/>
+///     Extension on the official <see cref="FirestoreDb" />
 /// </summary>
 public static class FirestoreDbExtensions
 {
     /// <summary>
-    /// Method that allows the creation of TypedCollection
+    ///     Method that allows the creation of TypedCollection
     /// </summary>
     /// <param name="firestoreDb">The firestore database</param>
     /// <param name="path">Path to the collection</param>

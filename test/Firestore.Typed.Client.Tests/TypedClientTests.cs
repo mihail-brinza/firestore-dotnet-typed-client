@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Firestore.Typed.Client.Tests.Model;
+
 using FluentAssertions;
 
 using Google.Api.Gax;
@@ -15,19 +17,90 @@ namespace Firestore.Typed.Client.Tests;
 public class TypedClientTests : IAsyncLifetime
 {
     private readonly FirestoreDb _db;
-    private readonly Lazy<TypedCollectionReference<User>> _lazyCollection;
 
-    private TypedCollectionReference<User> Collection => _lazyCollection.Value;
+
+    private readonly List<User> _initialUsers = new()
+    {
+        new User
+        {
+            FirstName  = "John",
+            SecondName = "Doe",
+            Age        = 10,
+            Location = new Location
+            {
+                City    = "Lisbon",
+                Country = "Portugal"
+            }
+        },
+        new User
+        {
+            FirstName  = "John",
+            SecondName = "Snow",
+            Age        = 15,
+            Location = new Location
+            {
+                City    = "Coimbra",
+                Country = "Portugal"
+            }
+        },
+        new User
+        {
+            FirstName  = "Michael",
+            SecondName = "Low",
+            Age        = 21,
+            Location = new Location
+            {
+                City    = "Madrid",
+                Country = "Spain"
+            }
+        },
+        new User
+        {
+            FirstName  = "Ana",
+            SecondName = "Smith",
+            Age        = 33,
+            Location = new Location
+            {
+                City    = "London",
+                Country = "England"
+            }
+        },
+        new User
+        {
+            FirstName  = "David",
+            SecondName = "Roy",
+            Age        = 45,
+            Location = new Location
+            {
+                City    = "Manchester",
+                Country = "England"
+            }
+        }
+    };
+
+    private readonly Lazy<TypedCollectionReference<User>> _lazyCollection;
 
     public TypedClientTests()
     {
         _db = new FirestoreDbBuilder
         {
             ProjectId         = "downcast-698d1",
-            EmulatorDetection = EmulatorDetection.EmulatorOnly,
+            EmulatorDetection = EmulatorDetection.EmulatorOnly
         }.Build();
 
         _lazyCollection = new Lazy<TypedCollectionReference<User>>(GetNewUniqueCollection);
+    }
+
+    private TypedCollectionReference<User> Collection => _lazyCollection.Value;
+
+    public async Task InitializeAsync()
+    {
+        await Task.WhenAll(_initialUsers.Select(user => Collection.AddAsync(user))).ConfigureAwait(false);
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     [Fact]
@@ -160,79 +233,68 @@ public class TypedClientTests : IAsyncLifetime
         snapshot.GetValue(user => user.FirstName).Should().Be(newFirstName);
     }
 
+
+    [Fact]
+    public async Task Test_SetAsync_Overwrite()
+    {
+        TypedQuerySnapshot<User> users = await Collection
+            .WhereEqualTo(user => user.FirstName, "John")
+            .WhereEqualTo(user => user.SecondName, "Doe")
+            .Limit(1)
+            .GetSnapshotAsync()
+            .ConfigureAwait(false);
+
+        users.Count.Should().Be(1);
+
+        var userToReplace = new User()
+        {
+            Id         = users[0].Id,
+            FirstName  = "John1",
+            SecondName = "Doe2",
+            Age        = 80,
+            Location = new Location
+            {
+                City    = "Rome",
+                Country = "Italy",
+            }
+        };
+        WriteResult _ = await users[0].Reference.SetAsync(userToReplace).ConfigureAwait(false);
+
+        TypedDocumentSnapshot<User> replacedUser = await users[0].Reference.GetSnapshotAsync().ConfigureAwait(false);
+        replacedUser.RequiredObject.Should().BeEquivalentTo(userToReplace);
+    }
+
+    [Fact]
+    public async Task Test_SetAsync_MergeAll()
+    {
+        var user = new User
+        {
+            FirstName  = "John1",
+            SecondName = "Doe2",
+            Age        = 80,
+            Location = new Location
+            {
+                City    = "Rome",
+                Country = "Italy",
+            }
+        };
+        TypedDocumentReference<User> addedUser = await Collection.AddAsync(user).ConfigureAwait(false);
+        TypedDocumentSnapshot<User> snapshot = await addedUser.GetSnapshotAsync().ConfigureAwait(false);
+        user.Id = addedUser.Id;
+        snapshot.RequiredObject.Should().BeEquivalentTo(user);
+
+        WriteResult _ = await addedUser.SetAsync(new User
+        {
+            Age = 47
+        }, TypedSetOptions<User>.MergeFields(u => u.Age)).ConfigureAwait(false);
+
+        TypedDocumentSnapshot<User> mergedUser = await addedUser.GetSnapshotAsync().ConfigureAwait(false);
+        user.Age = 47;
+        mergedUser.RequiredObject.Should().BeEquivalentTo(user);
+    }
+
     private TypedCollectionReference<User> GetNewUniqueCollection()
     {
         return _db.TypedCollection<User>(Guid.NewGuid().ToString());
-    }
-
-    public async Task InitializeAsync()
-    {
-        await Task.WhenAll(_initialUsers.Select(user => Collection.AddAsync(user))).ConfigureAwait(false);
-    }
-
-    
-
-    private readonly List<User> _initialUsers = new()
-    {
-        new User
-        {
-            FirstName  = "John",
-            SecondName = "Doe",
-            Age        = 10,
-            Location = new Location
-            {
-                City    = "Lisbon",
-                Country = "Portugal"
-            }
-        },
-        new()
-        {
-            FirstName  = "John",
-            SecondName = "Snow",
-            Age        = 15,
-            Location = new Location
-            {
-                City    = "Coimbra",
-                Country = "Portugal"
-            }
-        },
-        new()
-        {
-            FirstName  = "Michael",
-            SecondName = "Low",
-            Age        = 21,
-            Location = new Location
-            {
-                City    = "Madrid",
-                Country = "Spain"
-            }
-        },
-        new()
-        {
-            FirstName  = "Ana",
-            SecondName = "Smith",
-            Age        = 33,
-            Location = new Location
-            {
-                City    = "London",
-                Country = "England"
-            }
-        },
-        new()
-        {
-            FirstName  = "David",
-            SecondName = "Roy",
-            Age        = 45,
-            Location = new Location
-            {
-                City    = "Manchester",
-                Country = "England"
-            }
-        }
-    };
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
     }
 }
