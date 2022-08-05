@@ -3,22 +3,24 @@
 **A light-weight, strongly-typed Firestore client that allows you to catch query errors before your clients catch
 them :)**
 
-Since this project wraps the official Firestore Client,
-please read the [Official Documentation](https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Firestore/latest)
-if you have any question.
-
 ---
 
 ## Overview
+
+Although Firestore is a NoSQL, schemaless, database, we often have the need for a collection to hold a set of documents
+with the same schema that we define using a domain object.
 
 This .NET Firestore client wraps the official Firestore client made available by Google, adding typed queries (similar
 to how the .NET MongoDb Driver does it). By having typed queries we no longer need to reference Field Names using
 hard-coded strings, which can lead to undetected errors in compile-time.
 
-Although Firestore is a NoSQL, schemaless, database, we often have the need for a collection to hold a set of documents
-with the same schema that we define using a domain object.
+Since this project wraps the official Firestore Client, it supports everything that the official client does and uses
+all the security and best practices implemented by Google.
+For more information about how the official firestore client works please read
+the [Official Documentation](https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Firestore/latest).
 
-This documentation will have the following data structure as example:
+This documentation compares the Typed Client with the Official one in a few aspects and it has the following data
+structure as example:
 
 ```csharp
 [FirestoreData]
@@ -48,6 +50,10 @@ public class Location
 }
 ```
 
+For more information about how DataModeling works, please refer to
+the [Data Model Official Documentation](https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Firestore/latest/datamodel)
+.
+
 ### Sample Code
 
 ```csharp
@@ -75,9 +81,9 @@ TypedDocumentReference<User> document = await collection.AddAsync(newUser);
 TypedDocumentSnapshot<User> snapshot = await document.GetSnapshotAsync();
 
 // We can access individual fields by selecting them using a lambda expression
-Console.WriteLine(snapshot.GetValue(user => user.FirstName));
-Console.WriteLine(snapshot.GetValue(user => user.Age));
-Console.WriteLine(snapshot.GetValue(user => user.Location.Country));
+string firstName = snapshot.GetValue(user => user.FirstName);
+int age = snapshot.GetValue(user => user.Age);
+string country = snapshot.GetValue(user => user.Location.Country);
 
 // Or get the deserialized object
 User? createdUser = snapshot.Object;
@@ -183,3 +189,75 @@ Single Field update:
  WriteResult result = await document.UpdateAsync(user => user.Age, 18);
 ```
 
+#### Official Client
+
+Multi Field update:
+
+```csharp
+Dictionary<FieldPath, object> updates = new Dictionary<FieldPath, object>
+{
+    { new FieldPath("Age"), 18 },
+    { new FieldPath("FirstName"), "Will" }
+}; // Note that 
+WriteResult result = await document.UpdateAsync(updates);
+```
+
+Single Field update:
+
+```csharp
+ WriteResult result = await document.UpdateAsync("Age", 18);
+```
+
+### Deleting Documents
+
+Deleting document is works exactly the same in both clients, please refer to
+the [Official Documentation](https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Firestore/latest/userguide#deleting-a-document)
+for more information.
+
+```csharp
+await document.DeleteAsync();
+```
+
+### Reading documents
+
+```csharp
+TypedDocumentSnapshot<User> snapshot = await document.GetSnapshotAsync();
+// Even if there's no document in the server, we still get a snapshot
+// back - but it knows the document doesn't exist.
+Console.WriteLine(snapshot.Exists);
+
+// Individual fields can be checked and fetched
+snapshot.ContainsField(user => user.Age); 
+string secondName = snapshot.GetValue(user => user.SecondName)); 
+
+// Or you can get an instance of the deserialized data
+User user = snapshot.Object;
+```
+
+#### Query
+
+```csharp
+FirestoreDb db = FirestoreDb.Create(projectId);
+TypedCollectionReference<User> collection = db.TypedCollection<User>("users");
+
+// A TypedCollectionReference<User> is a TypedQuery<User>, so we can just fetch everything
+TypedQuerySnapshot<User> allUsers = await collection.GetSnapshotAsync();
+foreach (TypedDocumentSnapshot<User> document in allUsers.Documents)
+{
+    User user = document.Object; 
+}
+
+// Filters, Ordering, etc. are also supported
+TypedQuery<User> adultsFromPortugalQuery = collection
+    .WhereGreaterThanOrEqualTo(user => user.Age, 18)
+    .WhereEqualTo(user => user.Location.Country, "Portugal")
+    .OrderByDescending(user => user.Age);
+
+TypedQuerySnapshot<User> bigCities = await adultsFromPortugalQuery.GetSnapshotAsync();
+foreach (TypedDocumentSnapshot<User> document in bigCities.Documents)
+{
+    // Do anything you'd normally do with a DocumentSnapshot
+    User user = document.Object;
+    Console.WriteLine($"{user.FirstName}: {user.SecondName}");
+}
+```
