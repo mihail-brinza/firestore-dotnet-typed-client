@@ -14,6 +14,8 @@ This .NET Firestore client wraps the official Firestore client made available by
 to how the .NET MongoDb Driver does it). By having typed queries we no longer need to reference Field Names using
 hard-coded strings, which can lead to undetected errors in compile-time.
 
+Instead the Field Names are automatically calculated from a lambda expression, adding type safety to our queries.
+
 Since this project wraps the official Firestore Client, it supports everything that the official client does and uses
 all the security and best practices implemented by Google.
 For more information about how the official firestore client works please read
@@ -110,7 +112,7 @@ client:
 
 ---
 
-### Create Database
+## Create Database
 
 Creating the database remains equal to the official client:
 
@@ -118,19 +120,23 @@ Creating the database remains equal to the official client:
 FirestoreDb db = FirestoreDb.Create(projectId);
 ```
 
-### Access Collection
+## Access Collection
 
 Using **FirestoreDb** you can create a **TypedCollection\<TDocument>** by the path from the database root:
 
-```csharp
-// with Typed Client
-TypedCollectionReference<User> collection = db.TypedCollection<User>("users"); 
+#### Typed Client
 
-// official client
+```csharp
+TypedCollectionReference<User> collection = db.TypedCollection<User>("users"); 
+```
+
+#### Official Client
+
+```csharp
 CollectionReference collection = db.Collection("users");
 ```
 
-### Creating a document
+## Creating a document
 
 A frequent use-case when dealing with collections is for each collection to hold one specific type of documents, for
 this reason, when we
@@ -167,7 +173,7 @@ TypedCollectionReference<User> collection = db.TypedCollection<User>("users");
 TypedDocumentReference<User> document = await collection.AddAsync(user); 
 ```
 
-### Updating specific fields
+## Updating specific fields
 
 Similarly to the official client, updating only specific field is also supported:
 
@@ -178,7 +184,7 @@ Multi Field update:
 ```csharp
 UpdateDefinition<User> update = new UpdateDefinition<User>()
 .Set(user => user.Age, 18)
-.Set(user => user.FirstName, "Will");
+.Set(user => user.Location.Country, "Spain");
 
 WriteResult result = await document.UpdateAsync(update);
 ```
@@ -194,11 +200,13 @@ Single Field update:
 Multi Field update:
 
 ```csharp
+// Note that here we need to refer to the custom field name "home_country",
+// while with the typed client is automatic
 Dictionary<FieldPath, object> updates = new Dictionary<FieldPath, object>
 {
     { new FieldPath("Age"), 18 },
-    { new FieldPath("FirstName"), "Will" }
-}; // Note that 
+    { new FieldPath("Location.home_country"), "Spain" }
+}; 
 WriteResult result = await document.UpdateAsync(updates);
 ```
 
@@ -208,7 +216,7 @@ Single Field update:
  WriteResult result = await document.UpdateAsync("Age", 18);
 ```
 
-### Deleting Documents
+## Deleting Documents
 
 Deleting document is works exactly the same in both clients, please refer to
 the [Official Documentation](https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Firestore/latest/userguide#deleting-a-document)
@@ -218,23 +226,40 @@ for more information.
 await document.DeleteAsync();
 ```
 
-### Reading documents
+## Reading documents
+
+#### Typed Client
 
 ```csharp
 TypedDocumentSnapshot<User> snapshot = await document.GetSnapshotAsync();
 // Even if there's no document in the server, we still get a snapshot
 // back - but it knows the document doesn't exist.
-Console.WriteLine(snapshot.Exists);
+bool documentExists = snapshot.Exists;
 
 // Individual fields can be checked and fetched
-snapshot.ContainsField(user => user.Age); 
-string secondName = snapshot.GetValue(user => user.SecondName)); 
+bool hasAge = snapshot.ContainsField(user => user.Age); 
+string city = snapshot.GetValue(user => user.Location.City)); 
 
 // Or you can get an instance of the deserialized data
 User user = snapshot.Object;
 ```
 
-#### Query
+#### Official Client
+
+```csharp
+DocumentSnapshot snapshot = await document.GetSnapshotAsync();
+
+bool documentExists = snapshot.Exists;
+
+bool hasAge = snapshot.ContainsField("Age"); 
+string city = snapshot.GetValue<string>("Location.City")); 
+
+User user = snapshot.ConvertTo<User>();
+```
+
+### Query
+
+#### Typed Client
 
 ```csharp
 FirestoreDb db = FirestoreDb.Create(projectId);
@@ -261,3 +286,33 @@ foreach (TypedDocumentSnapshot<User> document in bigCities.Documents)
     Console.WriteLine($"{user.FirstName}: {user.SecondName}");
 }
 ```
+
+#### Official Client
+
+```csharp
+FirestoreDb db = FirestoreDb.Create(projectId);
+CollectionReference collection = db.Collection("users");
+
+QuerySnapshot allUsers = await collection.GetSnapshotAsync();
+foreach (DocumentSnapshot document in allUsers.Documents)
+{
+    User user = document.ConvertTo<User>(); 
+}
+
+// Filters, Ordering, etc. are also supported
+TypedQuery<User> adultsFromPortugalQuery = collection
+    .WhereGreaterThanOrEqualTo("Age", 18)
+    .WhereEqualTo("Location.home_country", "Portugal")
+    .OrderByDescending("Age");
+
+QuerySnapshot bigCities = await adultsFromPortugalQuery.GetSnapshotAsync();
+foreach (DocumentSnapshot document in bigCities.Documents)
+{
+    User user = document.ConvertTo<User>();
+    Console.WriteLine($"{user.FirstName}: {user.SecondName}");
+}
+```
+
+---
+Everything else (Transactions, Listeners) works exactly as before.
+
