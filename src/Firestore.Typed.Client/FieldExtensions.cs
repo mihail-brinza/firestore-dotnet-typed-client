@@ -20,4 +20,14 @@ internal static class FieldExtensions
         fieldNameVisitor.Visit(field);
         return fieldNameVisitor.FieldName;
     }
+
+    /// <summary>
+    ///     Processes the given <paramref name="fields" /> and returns an array with the field names
+    /// </summary>
+    /// <param name="fields">An array of lambda expressions that select the fields</param>
+    /// <returns>An array containing the field names</returns>
+    internal static string[] GetFieldNames(this IEnumerable<Expression> fields)
+    {
+        return fields.Select(field => field.GetFieldName()).ToArray();
+    }
 }

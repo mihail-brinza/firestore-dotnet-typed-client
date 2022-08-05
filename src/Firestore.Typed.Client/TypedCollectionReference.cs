@@ -83,7 +83,7 @@ public sealed class TypedCollectionReference<TDocument> : TypedQuery<TDocument>,
     /// <returns>A <see cref="TypedDocumentReference{TDocument}" /> for the specified document.</returns>
     public TypedDocumentReference<TDocument> Document(string path)
     {
-        return new TypedDocumentReference<TDocument>(_collection.Document());
+        return new TypedDocumentReference<TDocument>(_collection.Document(path));
     }
 
 

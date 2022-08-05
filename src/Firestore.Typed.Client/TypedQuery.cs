@@ -54,7 +54,7 @@ public class TypedQuery<TDocument> : IEquatable<TypedQuery<TDocument>>
     /// <returns>A new query based on the current one, but with the specified projection applied.</returns>
     public TypedQuery<TDocument> Select(params Expression<Func<TDocument, object>>[] fields)
     {
-        return new TypedQuery<TDocument>(_query.Select(fields.Select(field => field.GetFieldName()).ToArray()));
+        return new TypedQuery<TDocument>(_query.Select(fields.GetFieldNames()));
     }
 
     public async Task<TypedQuerySnapshot<TDocument>> GetSnapshotAsync(CancellationToken cancellationToken = default)
@@ -121,7 +121,7 @@ public class TypedQuery<TDocument> : IEquatable<TypedQuery<TDocument>>
     /// <returns>A new query based on the current one, but with the additional specified filter applied.</returns>
     public TypedQuery<TDocument> WhereLessThanOrEqualTo<TField>(Expression<Func<TDocument, TField>> field, TField value)
     {
-        return new TypedQuery<TDocument>(_query.WhereLessThan(field.GetFieldName(), value));
+        return new TypedQuery<TDocument>(_query.WhereLessThanOrEqualTo(field.GetFieldName(), value));
     }
 
     /// <summary>
@@ -269,7 +269,7 @@ public class TypedQuery<TDocument> : IEquatable<TypedQuery<TDocument>>
     /// <returns>A new query based on the current one, but with the additional specified ordering applied.</returns>
     public TypedQuery<TDocument> OrderByDescending<TField>(Expression<Func<TDocument, TField>> field)
     {
-        return new TypedQuery<TDocument>(_query.OrderBy(field.GetFieldName()));
+        return new TypedQuery<TDocument>(_query.OrderByDescending(field.GetFieldName()));
     }
 
 

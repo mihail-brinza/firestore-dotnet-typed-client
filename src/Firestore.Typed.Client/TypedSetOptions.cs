@@ -18,7 +18,6 @@ public class TypedSetOptions<TDocument>
 
     public static TypedSetOptions<TDocument> MergeFields<TField>(params Expression<Func<TDocument, TField>>[] fields)
     {
-        string[] fieldMask = fields.Select(field => field.GetFieldName()).ToArray();
-        return new TypedSetOptions<TDocument>(SetOptions.MergeFields(fieldMask));
+        return new TypedSetOptions<TDocument>(SetOptions.MergeFields(fields.GetFieldNames()));
     }
 }
