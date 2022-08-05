@@ -163,6 +163,23 @@ TypedDocumentReference<User> document = await collection.AddAsync(user);
 
 ### Updating specific fields
 
+Similarly to the official client, updating only specific field is also supported:
 
+#### Typed Client
 
+Multi Field update:
+
+```csharp
+UpdateDefinition<User> update = new UpdateDefinition<User>()
+.Set(user => user.Age, 18)
+.Set(user => user.FirstName, "Will");
+
+WriteResult result = await document.UpdateAsync(update);
+```
+
+Single Field update:
+
+```csharp
+ WriteResult result = await document.UpdateAsync(user => user.Age, 18);
+```
 
