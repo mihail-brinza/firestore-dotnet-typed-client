@@ -1,8 +1,11 @@
-namespace Firestore.Typed.Client.Exceptions;
+using System;
 
-public class DocumentNotFoundException : Exception
+namespace Firestore.Typed.Client.Exceptions
 {
-    internal DocumentNotFoundException(string documentId) : base($"Document with id: {documentId} does not exist")
+    public class DocumentNotFoundException : Exception
     {
+        internal DocumentNotFoundException(string documentId) : base($"Document with id: {documentId} does not exist")
+        {
+        }
     }
 }

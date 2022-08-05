@@ -1,45 +1,49 @@
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
 using Google.Cloud.Firestore;
 
-namespace Firestore.Typed.Client.Visitor;
-
-public class FieldNameVisitor : ExpressionVisitor
+namespace Firestore.Typed.Client.Visitor
 {
-    private const char FieldSeparator = '.';
-    private static readonly Type FirestorePropertyAttribute = typeof(FirestorePropertyAttribute);
-    private static readonly Type FirestorePropertyData = typeof(FirestorePropertyAttribute);
-    public string FieldName { get; private set; } = string.Empty;
-
-    protected override Expression VisitMember(MemberExpression node)
+    public class FieldNameVisitor : ExpressionVisitor
     {
-        if (FieldName is not { Length: 0 })
-        {
-            AddToFieldName(FieldSeparator);
-        }
+        private const char FieldSeparator = '.';
+        private static readonly Type FirestorePropertyAttribute = typeof(FirestorePropertyAttribute);
+        private static readonly Type FirestorePropertyData = typeof(FirestorePropertyAttribute);
+        public string FieldName { get; private set; } = string.Empty;
 
-        Attribute? propAttribute = node.Member
-            .GetCustomAttributes()
-            .FirstOrDefault(attribute => attribute.GetType() == FirestorePropertyAttribute);
-
-        if (propAttribute is FirestorePropertyAttribute { Name.Length: > 0 } firestoreAttribute)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            AddToFieldName(firestoreAttribute.Name);
+            if (!string.IsNullOrEmpty(FieldName))
+            {
+                AddToFieldName(FieldSeparator);
+            }
+
+            Attribute? propAttribute = node.Member
+                .GetCustomAttributes()
+                .FirstOrDefault(attribute => attribute.GetType() == FirestorePropertyAttribute);
+
+            if (propAttribute is FirestorePropertyAttribute firestoreAttribute
+             && !string.IsNullOrEmpty(firestoreAttribute.Name))
+            {
+                AddToFieldName(firestoreAttribute.Name);
+                return base.VisitMember(node);
+            }
+
+            AddToFieldName(node.Member.Name);
             return base.VisitMember(node);
         }
 
-        AddToFieldName(node.Member.Name);
-        return base.VisitMember(node);
-    }
+        private void AddToFieldName(string field)
+        {
+            FieldName = field + FieldName;
+        }
 
-    private void AddToFieldName(string field)
-    {
-        FieldName = field + FieldName;
-    }
-
-    private void AddToFieldName(char character)
-    {
-        FieldName = character + FieldName;
+        private void AddToFieldName(char character)
+        {
+            FieldName = character + FieldName;
+        }
     }
 }
