@@ -1,24 +1,25 @@
 using Google.Cloud.Firestore;
 
-namespace Firestore.Typed.Client.Tests.Model;
-
-[FirestoreData]
-public class User
+namespace Firestore.Typed.Client.Tests.Model
 {
-    public const string SecondNameCustomField = "second_name";
+    [FirestoreData]
+    public class User
+    {
+        public const string SecondNameCustomField = "second_name";
 
-    [FirestoreDocumentId]
-    public string Id { get; set; } = null!;
+        [FirestoreDocumentId]
+        public string Id { get; set; } = null!;
 
-    [FirestoreProperty]
-    public string FirstName { get; set; } = null!;
+        [FirestoreProperty]
+        public string FirstName { get; set; } = null!;
 
-    [FirestoreProperty(SecondNameCustomField)]
-    public string SecondName { get; set; } = null!;
+        [FirestoreProperty(SecondNameCustomField)]
+        public string SecondName { get; set; } = null!;
 
-    [FirestoreProperty]
-    public int Age { get; set; }
+        [FirestoreProperty]
+        public int Age { get; set; }
 
-    [FirestoreProperty]
-    public Location Location { get; set; } = null!;
+        [FirestoreProperty]
+        public Location Location { get; set; } = null!;
+    }
 }
