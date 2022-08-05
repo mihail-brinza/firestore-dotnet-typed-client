@@ -182,6 +182,8 @@ Similarly to the official client, updating only specific field is also supported
 Multi Field update:
 
 ```csharp
+// The methods only allow to Set a value of the type of the property:
+// int in the case of Age and string in case of Coutry, not compiling otherwise
 UpdateDefinition<User> update = new UpdateDefinition<User>()
 .Set(user => user.Age, 18)
 .Set(user => user.Location.Country, "Spain");
