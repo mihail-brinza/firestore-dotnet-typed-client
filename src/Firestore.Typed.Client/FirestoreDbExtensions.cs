@@ -20,5 +20,16 @@ namespace Firestore.Typed.Client
         {
             return new TypedCollectionReference<TDocument>(firestoreDb.Collection(path));
         }
+
+
+        /// <summary>
+        /// Creates a typed write batch, which can be used to commit multiple mutations atomically.
+        /// </summary>
+        /// <returns>A write batch for this database.</returns>
+        public static TypedWriteBatch<TDocument> StartTypedBatch<TDocument>(
+            this FirestoreDb firestoreDb)
+        {
+            return new TypedWriteBatch<TDocument>(firestoreDb.StartBatch());
+        }
     }
 }

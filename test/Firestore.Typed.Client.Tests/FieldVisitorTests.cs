@@ -8,48 +8,47 @@ using FluentAssertions;
 
 using Xunit;
 
-namespace Firestore.Typed.Client.Tests
+namespace Firestore.Typed.Client.Tests;
+
+public class FieldVisitorTests
 {
-    public class FieldVisitorTests
+    [Fact]
+    public void SimpleFieldAccessTest()
     {
-        [Fact]
-        public void SimpleFieldAccessTest()
-        {
-            Expression<Func<User, string>> expr = user => user.FirstName;
-            var visitor = new FieldNameVisitor();
-            visitor.Visit(expr);
+        Expression<Func<User, string>> expr = user => user.FirstName;
+        var visitor = new FieldNameVisitor();
+        visitor.Visit(expr);
 
-            visitor.FieldName.Should().Be(nameof(User.FirstName));
-        }
+        visitor.FieldName.Should().Be(nameof(User.FirstName));
+    }
 
-        [Fact]
-        public void CustomFieldNameTest()
-        {
-            Expression<Func<User, string>> expr = user => user.SecondName;
-            var visitor = new FieldNameVisitor();
-            visitor.Visit(expr);
+    [Fact]
+    public void CustomFieldNameTest()
+    {
+        Expression<Func<User, string>> expr = user => user.LastName;
+        var visitor = new FieldNameVisitor();
+        visitor.Visit(expr);
 
-            visitor.FieldName.Should().Be(User.SecondNameCustomField);
-        }
+        visitor.FieldName.Should().Be(User.SecondNameCustomField);
+    }
 
-        [Fact]
-        public void NestedFieldNameTest()
-        {
-            Expression<Func<User, string>> expr = user => user.Location.City;
-            var visitor = new FieldNameVisitor();
-            visitor.Visit(expr);
+    [Fact]
+    public void NestedFieldNameTest()
+    {
+        Expression<Func<User, string>> expr = user => user.Location.City;
+        var visitor = new FieldNameVisitor();
+        visitor.Visit(expr);
 
-            visitor.FieldName.Should().Be("Location.City");
-        }
+        visitor.FieldName.Should().Be("Location.City");
+    }
 
-        [Fact]
-        public void NestedFieldNameWithCustomNameTest()
-        {
-            Expression<Func<User, string>> expr = user => user.Location.Country;
-            var visitor = new FieldNameVisitor();
-            visitor.Visit(expr);
+    [Fact]
+    public void NestedFieldNameWithCustomNameTest()
+    {
+        Expression<Func<User, string>> expr = user => user.Location.Country;
+        var visitor = new FieldNameVisitor();
+        visitor.Visit(expr);
 
-            visitor.FieldName.Should().Be($"Location.{Location.CountryCustomName}");
-        }
+        visitor.FieldName.Should().Be($"Location.{Location.CountryCustomName}");
     }
 }

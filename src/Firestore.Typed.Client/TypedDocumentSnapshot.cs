@@ -49,7 +49,7 @@ namespace Firestore.Typed.Client
         ///     <exception cref="DocumentNotFoundException">The document does not exist.</exception>
         /// </summary>
         public TDocument RequiredObject => Snapshot.Exists
-            ? Object!
+            ? Object
             : throw new DocumentNotFoundException(Snapshot.Id);
 
         /// <summary>
