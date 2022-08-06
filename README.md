@@ -301,6 +301,7 @@ foreach (TypedDocumentSnapshot<User> document in allUsers.Documents)
 
 // Filters, Ordering, etc. are also supported
 TypedQuery<User> adultsFromPortugalQuery = collection
+    .OrderBy(user => user.Age)
     .WhereGreaterThanOrEqualTo(user => user.Age, 18)
     .WhereEqualTo(user => user.Location.Country, "Portugal")
     .OrderByDescending(user => user.Age);
@@ -328,6 +329,7 @@ foreach (DocumentSnapshot document in allUsers.Documents)
 
 // Filters, Ordering, etc. are also supported
 TypedQuery<User> adultsFromPortugalQuery = collection
+    .OrderBy("Age")
     .WhereGreaterThanOrEqualTo("Age", 18)
     .WhereEqualTo("Location.home_country", "Portugal")
     .OrderByDescending("Age");
