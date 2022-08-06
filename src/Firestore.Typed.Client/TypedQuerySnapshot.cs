@@ -47,23 +47,6 @@ namespace Firestore.Typed.Client
         /// </summary>
         public Timestamp ReadTime => _snapshot.ReadTime;
 
-        public bool Equals(TypedQuerySnapshot<TDocument>? other)
-        {
-            return _snapshot.Equals(other?._snapshot);
-        }
-
-        /// <inheritdoc />
-        public IEnumerator<TypedDocumentSnapshot<TDocument>> GetEnumerator()
-        {
-            return Documents.GetEnumerator();
-        }
-
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
         /// <summary>
         ///     Returns the number of documents in this query snapshot.
         /// </summary>
@@ -81,7 +64,8 @@ namespace Firestore.Typed.Client
         /// <returns>The document snapshot with the specified index within this query snapshot.</returns>
         public TypedDocumentSnapshot<TDocument> this[int index] => Documents[index];
 
-        private static Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> BuildLazyTypedChangeList(QuerySnapshot snapshot)
+        private static Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> BuildLazyTypedChangeList(
+            QuerySnapshot snapshot)
         {
             return new Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>>(
                 () => snapshot.Changes.Select(change => new TypedDocumentChange<TDocument>(change)).ToList(),
@@ -89,12 +73,30 @@ namespace Firestore.Typed.Client
             );
         }
 
-        private static Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> BuildLazyTypedDocuments(QuerySnapshot snapshot)
+        private static Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> BuildLazyTypedDocuments(
+            QuerySnapshot snapshot)
         {
             return new Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>>(
                 () => snapshot.Documents
                     .Select(documentSnap => new TypedDocumentSnapshot<TDocument>(documentSnap))
                     .ToList(), LazyThreadSafetyMode.ExecutionAndPublication);
+        }
+
+        public bool Equals(TypedQuerySnapshot<TDocument>? other)
+        {
+            return _snapshot.Equals(other?._snapshot);
+        }
+
+        /// <inheritdoc />
+        public IEnumerator<TypedDocumentSnapshot<TDocument>> GetEnumerator()
+        {
+            return Documents.GetEnumerator();
+        }
+
+        /// <inheritdoc />
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         /// <inheritdoc />

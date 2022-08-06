@@ -12,8 +12,7 @@ namespace Firestore.Typed.Client
     public sealed class TypedDocumentChange<TDocument> : IEquatable<TypedDocumentChange<TDocument>>
     {
         private readonly DocumentChange _documentChange;
-
-
+        
         public TypedDocumentChange(DocumentChange documentChange)
         {
             _documentChange = documentChange;

@@ -123,7 +123,9 @@ namespace Firestore.Typed.Client
         /// <param name="field">Lambda expression that allows to type safely select field</param>
         /// <param name="value">The value to compare in the filter.</param>
         /// <returns>A new query based on the current one, but with the additional specified filter applied.</returns>
-        public TypedQuery<TDocument> WhereLessThanOrEqualTo<TField>(Expression<Func<TDocument, TField>> field, TField value)
+        public TypedQuery<TDocument> WhereLessThanOrEqualTo<TField>(
+            Expression<Func<TDocument, TField>> field,
+            TField value)
         {
             return new TypedQuery<TDocument>(_query.WhereLessThanOrEqualTo(field.GetFieldName(), value));
         }
@@ -215,9 +217,8 @@ namespace Firestore.Typed.Client
         }
 
         /// <summary>
-        ///     Returns a query with a filter specifying that <paramref name="field" /> must be
-        ///     a field present in the document, with a value which is an array containing at least one value in
-        ///     <paramref name="values" />.
+        /// Returns a query with a filter specifying that <paramref name="field"/> must be
+        /// a field present in the document, with a value which is not one of the values in <paramref name="values"/>.
         /// </summary>
         /// <remarks>
         ///     This call adds additional filters to any previously-specified ones.

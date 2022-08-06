@@ -40,17 +40,6 @@ namespace Firestore.Typed.Client
         /// </summary>
         public override FirestoreDb Database => _collection.Database;
 
-        /// <inheritdoc />
-        public int CompareTo(TypedCollectionReference<TDocument>? other)
-        {
-            return _collection.CompareTo(other?._collection);
-        }
-
-        /// <inheritdoc />
-        public bool Equals(TypedCollectionReference<TDocument>? other)
-        {
-            return _collection.Equals(other?._collection);
-        }
 
         /// <summary>
         ///     The parent document, typed with TParentCollection, or null if this is a root collection.
@@ -107,7 +96,8 @@ namespace Firestore.Typed.Client
             TDocument documentData,
             CancellationToken cancellationToken = default)
         {
-            DocumentReference document = await _collection.AddAsync(documentData, cancellationToken).ConfigureAwait(false);
+            DocumentReference document =
+                await _collection.AddAsync(documentData, cancellationToken).ConfigureAwait(false);
             return new TypedDocumentReference<TDocument>(document);
         }
 
@@ -135,6 +125,18 @@ namespace Firestore.Typed.Client
         public override int GetHashCode()
         {
             return _collection.GetHashCode();
+        }
+
+        /// <inheritdoc />
+        public int CompareTo(TypedCollectionReference<TDocument>? other)
+        {
+            return _collection.CompareTo(other?._collection);
+        }
+
+        /// <inheritdoc />
+        public bool Equals(TypedCollectionReference<TDocument>? other)
+        {
+            return _collection.Equals(other?._collection);
         }
     }
 }
