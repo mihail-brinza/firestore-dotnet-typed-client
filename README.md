@@ -1,4 +1,6 @@
 # Firestore .NET Typed Client
+![](https://img.shields.io/github/workflow/status/mihail-brinza/firestore-dotnet-typed-client/Build%20and%20run%20tests/main?label=build%20%26%20tests&style=flat-square)
+![](https://img.shields.io/github/license/mihail-brinza/firestore-dotnet-typed-client?style=flat-square)
 
 **A light-weight, strongly-typed Firestore client that allows you to catch query errors before your clients catch
 them :)**
