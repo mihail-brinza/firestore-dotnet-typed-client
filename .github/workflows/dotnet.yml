@@ -28,3 +28,4 @@ jobs:
       run: dotnet test --no-build --verbosity normal
       env:
         FIRESTORE_EMULATOR_HOST: localhost:8081
+        FIRESTORE_PROJECT_ID: project-test
