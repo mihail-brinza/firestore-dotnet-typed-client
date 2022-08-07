@@ -20,5 +20,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+    - name: Start Firestore
+      uses: mickfeech/firestore-emulator-action@0.0.12
+      with: 
+        fireStoreProjectID: project-test
     - name: Test
       run: dotnet test --no-build --verbosity normal
