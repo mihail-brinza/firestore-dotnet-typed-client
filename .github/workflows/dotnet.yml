@@ -1,31 +1,32 @@
-name: .NET
+name: Build and run tests
 
 on:
   push:
   pull_request:
     branches: [ "main" ]
 
+env:
+  FIRESTORE_EMULATOR_HOST: firestore:8080
+  FIRESTORE_PROJECT_ID: project-test
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    services:
+      firestore:
+        image: mtlynch/firestore-emulator:latest
+        ports:
+          - 8080:8080
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Start Firestore
-      uses: mickfeech/firestore-emulator-action@0.0.12
-      with: 
-        fireStoreProjectID: project-test
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-      env:
-        FIRESTORE_EMULATOR_HOST: localhost:8081
-        FIRESTORE_PROJECT_ID: project-test
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+    
