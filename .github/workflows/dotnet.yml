@@ -27,4 +27,4 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
       env:
-        FIRESTORE_EMULATOR_HOST: firestore:8081
+        FIRESTORE_EMULATOR_HOST: localhost:8081
