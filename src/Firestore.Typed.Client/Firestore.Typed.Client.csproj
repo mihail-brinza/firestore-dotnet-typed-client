@@ -3,10 +3,24 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <PackageId>Firestore.Typed.Client</PackageId>
+        <PackageVersion>1.0.0</PackageVersion>
+        <Authors>Mihail Brinza</Authors>
+        <Description>
+            A wrapper on top of the official Firestore Client that adds type safety to your queries while
+            keeping all the security and best practices defined by Google.
+        </Description>
+        <PackageProjectUrl>https://github.com/mihail-brinza/firestore-dotnet-typed-client</PackageProjectUrl>
+        <PackageReadmeFile>../README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/mihail-brinza/firestore-dotnet-typed-client</RepositoryUrl>
+        <PackageTags>firebase firestore client typed</PackageTags>
+        <PackageLicenseFile>../License</PackageLicenseFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Cloud.Firestore" Version="3.0.0" />
+        <PackageReference Include="Google.Cloud.Firestore" Version="3.0.0"/>
     </ItemGroup>
 
 </Project>
