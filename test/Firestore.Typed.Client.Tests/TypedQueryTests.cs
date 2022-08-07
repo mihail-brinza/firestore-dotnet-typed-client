@@ -39,6 +39,7 @@ public class TypedQueryTests : IAsyncLifetime
     {
         TypedQuerySnapshot<User> typedQuerySnapshot =
             await typedQuery(Collection).GetSnapshotAsync().ConfigureAwait(false);
+
         IEnumerable<User> typedUsers = typedQuerySnapshot.Documents
             .Select(snap => snap.RequiredObject)
             .ToList();
@@ -50,6 +51,8 @@ public class TypedQueryTests : IAsyncLifetime
             .ToList();
 
         nonTypedUsers.Should().BeEquivalentTo(typedUsers);
+        typedQuerySnapshot.Changes.Should().HaveCount(querySnapshot.Changes.Count);
+        
     }
 
     [Fact]

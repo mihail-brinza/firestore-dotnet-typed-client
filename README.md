@@ -157,20 +157,20 @@ User user = new User
 };
 ```
 
-#### Official Client
-
-```csharp
-CollectionReference collection = db.Collection("users");
-// AddAsync accepts any object, not only users
-DocumentReference = await collection.AddAsync(user); 
-```
-
 #### Typed Client
 
 ```csharp
 TypedCollectionReference<User> collection = db.TypedCollection<User>("users");
 // AddAsync only accepts the User type and will not compile with any other type
 TypedDocumentReference<User> document = await collection.AddAsync(user); 
+```
+
+#### Official Client
+
+```csharp
+CollectionReference collection = db.Collection("users");
+// AddAsync accepts any object, not only users
+DocumentReference = await collection.AddAsync(user); 
 ```
 
 ## Updating specific fields
@@ -203,7 +203,7 @@ Multi Field update:
 
 ```csharp
 // Note that here we need to refer to the custom field name "home_country",
-// while with the typed client is automatic
+// while with the typed client the reference to the custom name is automatic
 Dictionary<FieldPath, object> updates = new Dictionary<FieldPath, object>
 {
     { new FieldPath("Age"), 18 },
