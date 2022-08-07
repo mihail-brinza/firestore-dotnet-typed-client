@@ -29,6 +29,9 @@ jobs:
         run: dotnet build --no-restore
       - name: Test
         run: dotnet test --logger "trx;LogFileName=test-results.trx"
+      - name: Install tree
+        run: sudo apt-get install -y tree
+      - run: tree
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: success() || failure()    # run this step even if previous step failed
