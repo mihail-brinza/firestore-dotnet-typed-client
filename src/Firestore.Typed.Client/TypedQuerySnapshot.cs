@@ -82,6 +82,7 @@ namespace Firestore.Typed.Client
                     .ToList(), LazyThreadSafetyMode.ExecutionAndPublication);
         }
 
+        /// <inheritdoc />
         public bool Equals(TypedQuerySnapshot<TDocument>? other)
         {
             return _snapshot.Equals(other?._snapshot);
