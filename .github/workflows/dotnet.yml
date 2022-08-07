@@ -26,3 +26,5 @@ jobs:
         fireStoreProjectID: project-test
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      env:
+        FIRESTORE_EMULATOR_HOST: localhost:8080
