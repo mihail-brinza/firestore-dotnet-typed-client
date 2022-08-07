@@ -22,7 +22,7 @@ public class TestUtils : IAsyncDisposable
 
     public FirestoreDb Db { get; } = new FirestoreDbBuilder
     {
-        ProjectId         = "downcast-698d1",
+        ProjectId         = Environment.GetEnvironmentVariable("FIRESTORE_PROJECT_ID"),
         EmulatorDetection = EmulatorDetection.EmulatorOnly
     }.Build();
 
