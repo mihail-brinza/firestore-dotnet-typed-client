@@ -6,7 +6,7 @@ on:
     branches: [ "main" ]
 
 env:
-  FIRESTORE_EMULATOR_HOST: firestore:8080
+  FIRESTORE_EMULATOR_HOST: localhost:8080
   FIRESTORE_PROJECT_ID: project-test
 
 jobs:
