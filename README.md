@@ -332,7 +332,7 @@ foreach (DocumentSnapshot document in allUsers.Documents)
 }
 
 // Filters, Ordering, etc. are also supported
-TypedQuery<User> adultsFromPortugalQuery = collection
+Query adultsFromPortugalQuery = collection
     .OrderBy("Age")
     .WhereGreaterThanOrEqualTo("Age", 18)
     .WhereEqualTo("Location.home_country", "Portugal")
