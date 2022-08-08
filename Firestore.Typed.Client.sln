@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firestore.Typed.Client.Benchmarks", "test\Firestore.Typed.Client.Benchmarks\Firestore.Typed.Client.Benchmarks.csproj", "{71EF4DAB-F044-40CC-9BE2-6568311F63D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +37,15 @@ Global
 		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71EF4DAB-F044-40CC-9BE2-6568311F63D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71EF4DAB-F044-40CC-9BE2-6568311F63D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71EF4DAB-F044-40CC-9BE2-6568311F63D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71EF4DAB-F044-40CC-9BE2-6568311F63D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{091720F4-EBD4-4A21-8BA2-8D1302471223} = {CEDE9C9C-837D-4D29-B152-9B9B64762715}
 		{87E3551F-2D30-48DD-8E03-FA1CF25B7DB2} = {510A3216-892F-4800-B948-0BCAB7DAB408}
 		{2DDD1965-4438-4D4E-B529-DE1EB49F2389} = {BA4253F0-A7E2-43AB-99F2-3EEB7BA0A39E}
+		{71EF4DAB-F044-40CC-9BE2-6568311F63D4} = {510A3216-892F-4800-B948-0BCAB7DAB408}
 	EndGlobalSection
 EndGlobal

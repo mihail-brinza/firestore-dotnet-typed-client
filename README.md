@@ -1,4 +1,5 @@
 # Firestore .NET Typed Client
+
 ![](https://img.shields.io/github/workflow/status/mihail-brinza/firestore-dotnet-typed-client/Build%20and%20run%20tests/main?label=build%20%26%20tests&style=flat-square)
 ![](https://img.shields.io/github/license/mihail-brinza/firestore-dotnet-typed-client?style=flat-square)
 ![](https://img.shields.io/nuget/dt/Firestore.Typed.Client?style=flat-square)
@@ -349,3 +350,78 @@ foreach (DocumentSnapshot document in bigCities.Documents)
 ---
 Everything else (Transactions, Listeners) works exactly as before.
 
+## Benchmarks
+
+This section compares the Official Client performance against the Typed client.
+The benchmarks were performed using the Firestore Emulator, with the following computer:
+
+```
+BenchmarkDotNet=v0.13.1, OS=macOS Monterey 12.5 (21G72) [Darwin 21.6.0]
+Apple M1 Pro, 1 CPU, 10 logical and 10 physical cores
+.NET SDK=6.0.202
+  [Host]     : .NET 6.0.4 (6.0.422.16404), Arm64 RyuJIT
+  DefaultJob : .NET 6.0.4 (6.0.422.16404), Arm64 RyuJIT
+```
+
+### 1. Lambda Field Translator Benchmark
+
+Below are the results of translating a **SimpleField** `u => u.FirstName` and a **NestedField** `u.Location.Country`.
+
+```
+|      Method |     Mean |     Error |    StdDev | Allocated |
+|------------ |---------:|----------:|----------:|----------:|
+| SimpleField | 1.503 us | 0.0064 us | 0.0054 us |     696 B |
+| NestedField | 2.936 us | 0.0116 us | 0.0103 us |   1,272 B |
+```
+
+### 2. Single Entity Benchmark
+
+This benchmark consists of:
+
+1. Creating a user.
+2. Getting the the user by id
+3. Querying the users by Country.
+
+```
+|         Method |     Mean |    Error |   StdDev | Allocated |
+|--------------- |---------:|---------:|---------:|----------:|
+|    TypedClient | 41.48 ms | 0.262 ms | 0.205 ms |     54 KB |
+| OfficialClient | 41.79 ms | 0.644 ms | 0.571 ms |     51 KB |
+```
+
+As we can see, the mean time is virtually the same, only the allocated memory is higher because of the lambda to field
+name translation
+
+### 3. Multiple Entities Benchmark
+
+This benchmark consists of:
+
+1. Generating a list with `numberOfUsers` Users.
+2. Insert the users in batch.
+3. Getting the the user by id.
+4. Query the users by `Age` and `Coutry`.
+5. Delete all users.
+
+```
+|         Method | numberOfUsers |     Mean |   Error |  StdDev | Allocated |
+|--------------- |-------------- |---------:|--------:|--------:|----------:|
+| OfficialClient |             1 | 122.7 ms | 0.67 ms | 0.59 ms |     83 KB |
+|    TypedClient |             1 | 123.1 ms | 1.00 ms | 0.83 ms |     84 KB |
+|    TypedClient |             5 | 125.6 ms | 1.32 ms | 1.17 ms |    167 KB |
+| OfficialClient |             5 | 125.6 ms | 1.15 ms | 1.07 ms |    164 KB |
+|    TypedClient |            10 | 128.5 ms | 0.71 ms | 0.59 ms |    271 KB |
+| OfficialClient |            10 | 128.8 ms | 0.65 ms | 0.58 ms |    266 KB |
+|    TypedClient |            50 | 152.0 ms | 1.01 ms | 0.99 ms |  1,089 KB |
+| OfficialClient |            50 | 153.7 ms | 1.41 ms | 1.25 ms |  1,076 KB |
+|    TypedClient |           100 | 184.2 ms | 2.09 ms | 1.74 ms |  2,148 KB |
+| OfficialClient |           100 | 184.4 ms | 2.81 ms | 2.49 ms |  2,101 KB |
+|    TypedClient |           200 | 243.7 ms | 2.66 ms | 2.22 ms |  4,158 KB |
+| OfficialClient |           200 | 247.6 ms | 1.79 ms | 1.50 ms |  4,132 KB |
+|    TypedClient |           400 | 370.4 ms | 5.99 ms | 5.00 ms |  8,247 KB |
+| OfficialClient |           400 | 371.3 ms | 3.75 ms | 3.13 ms |  8,206 KB |
+```
+
+Although it may seem that the TypedClient is faster in some cases, that is not true since it uses the OfficialClient
+underneath. These differences may be from the task scheduling of the Operating System.
+
+These results are a proof that the performance difference between the TypedClient and the Official one are negligible.
