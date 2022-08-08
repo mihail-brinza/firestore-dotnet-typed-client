@@ -10,9 +10,9 @@ env:
   FIRESTORE_PROJECT_ID: project-test
 
 jobs:
-  build:
+  build_and_tests:
     runs-on: ubuntu-latest
-    services:
+    services: # ramp up a firestore emulator instance
       firestore:
         image: mtlynch/firestore-emulator:latest
         ports:
