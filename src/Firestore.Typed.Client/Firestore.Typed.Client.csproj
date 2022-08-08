@@ -12,15 +12,23 @@
             keeping all the security and best practices defined by Google.
         </Description>
         <PackageProjectUrl>https://github.com/mihail-brinza/firestore-dotnet-typed-client</PackageProjectUrl>
-        <PackageReadmeFile>../README.md</PackageReadmeFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/mihail-brinza/firestore-dotnet-typed-client</RepositoryUrl>
         <PackageTags>firebase firestore client typed</PackageTags>
-        <PackageLicenseFile>../License</PackageLicenseFile>
+        <PackageLicenseFile>License</PackageLicenseFile>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Google.Cloud.Firestore" Version="3.0.0"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\License" Pack="true" PackagePath=""/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+
 
 </Project>
