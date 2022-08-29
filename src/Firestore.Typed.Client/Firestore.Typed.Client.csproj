@@ -15,8 +15,9 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/mihail-brinza/firestore-dotnet-typed-client</RepositoryUrl>
-        <PackageTags>firebase firestore client typed</PackageTags>
+        <PackageTags>firebase firestore client typed cloud</PackageTags>
         <PackageLicenseFile>License</PackageLicenseFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
