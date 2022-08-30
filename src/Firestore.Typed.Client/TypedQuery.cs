@@ -21,17 +21,17 @@ namespace Firestore.Typed.Client
     /// <typeparam name="TDocument">The type of the elements in the collection to query</typeparam>
     public class TypedQuery<TDocument> : IEquatable<TypedQuery<TDocument>>
     {
-        private readonly Query _query;
+        internal Query Query { get; }
 
         internal TypedQuery(Query query)
         {
-            _query = query;
+            Query = query;
         }
 
         /// <summary>
         ///     The database this query will search over.
         /// </summary>
-        public virtual FirestoreDb Database => _query.Database;
+        public virtual FirestoreDb Database => Query.Database;
 
 
         // Note: these methods should be equivalent to producing the proto representations and checking those for
@@ -47,7 +47,7 @@ namespace Firestore.Typed.Client
         /// <returns><c>true</c> if this query is equal to <paramref name="other" />; <c>false</c> otherwise.</returns>
         public bool Equals(TypedQuery<TDocument>? other)
         {
-            return _query.Equals(other?._query);
+            return Query.Equals(other?.Query);
         }
 
         /// <summary>
@@ -60,12 +60,12 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified projection applied.</returns>
         public TypedQuery<TDocument> Select(params Expression<Func<TDocument, object>>[] fields)
         {
-            return new TypedQuery<TDocument>(_query.Select(fields.GetFieldNames()));
+            return new TypedQuery<TDocument>(Query.Select(fields.GetFieldNames()));
         }
 
         public async Task<TypedQuerySnapshot<TDocument>> GetSnapshotAsync(CancellationToken cancellationToken = default)
         {
-            QuerySnapshot? querySnapshot = await _query.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            QuerySnapshot? querySnapshot = await Query.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
             return new TypedQuerySnapshot<TDocument>(querySnapshot, this);
         }
 
@@ -82,7 +82,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the additional specified filter applied.</returns>
         public TypedQuery<TDocument> WhereEqualTo<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return new TypedQuery<TDocument>(_query.WhereEqualTo(field.GetFieldName(), value));
+            return new TypedQuery<TDocument>(Query.WhereEqualTo(field.GetFieldName(), value));
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the additional specified filter applied.</returns>
         public TypedQuery<TDocument> WhereNotEqualTo<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return new TypedQuery<TDocument>(_query.WhereNotEqualTo(field.GetFieldName(), value));
+            return new TypedQuery<TDocument>(Query.WhereNotEqualTo(field.GetFieldName(), value));
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the additional specified filter applied.</returns>
         public TypedQuery<TDocument> WhereLessThan<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return new TypedQuery<TDocument>(_query.WhereLessThan(field.GetFieldName(), value));
+            return new TypedQuery<TDocument>(Query.WhereLessThan(field.GetFieldName(), value));
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Firestore.Typed.Client
             Expression<Func<TDocument, TField>> field,
             TField value)
         {
-            return new TypedQuery<TDocument>(_query.WhereLessThanOrEqualTo(field.GetFieldName(), value));
+            return new TypedQuery<TDocument>(Query.WhereLessThanOrEqualTo(field.GetFieldName(), value));
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the additional specified filter applied.</returns>
         public TypedQuery<TDocument> WhereGreaterThan<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return new TypedQuery<TDocument>(_query.WhereGreaterThan(field.GetFieldName(), value));
+            return new TypedQuery<TDocument>(Query.WhereGreaterThan(field.GetFieldName(), value));
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace Firestore.Typed.Client
             Expression<Func<TDocument, TField>> field,
             TField value)
         {
-            return new TypedQuery<TDocument>(_query.WhereGreaterThanOrEqualTo(field.GetFieldName(), value));
+            return new TypedQuery<TDocument>(Query.WhereGreaterThanOrEqualTo(field.GetFieldName(), value));
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Firestore.Typed.Client
             Expression<Func<TDocument, IEnumerable<TField>>> field,
             TField value)
         {
-            return new TypedQuery<TDocument>(_query.WhereArrayContains(field.GetFieldName(), value));
+            return new TypedQuery<TDocument>(Query.WhereArrayContains(field.GetFieldName(), value));
         }
 
 
@@ -197,7 +197,7 @@ namespace Firestore.Typed.Client
             Expression<Func<TDocument, IEnumerable<TField>>> field,
             IEnumerable<TField> values)
         {
-            return new TypedQuery<TDocument>(_query.WhereArrayContainsAny(field.GetFieldName(), values));
+            return new TypedQuery<TDocument>(Query.WhereArrayContainsAny(field.GetFieldName(), values));
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace Firestore.Typed.Client
             Expression<Func<TDocument, TField>> field,
             IEnumerable<TField> values)
         {
-            return new TypedQuery<TDocument>(_query.WhereIn(field.GetFieldName(), values));
+            return new TypedQuery<TDocument>(Query.WhereIn(field.GetFieldName(), values));
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace Firestore.Typed.Client
             Expression<Func<TDocument, TField>> field,
             IEnumerable<TField> values)
         {
-            return new TypedQuery<TDocument>(_query.WhereNotIn(field.GetFieldName(), values));
+            return new TypedQuery<TDocument>(Query.WhereNotIn(field.GetFieldName(), values));
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the additional specified ordering applied.</returns>
         public TypedQuery<TDocument> OrderBy<TField>(Expression<Func<TDocument, TField>> field)
         {
-            return new TypedQuery<TDocument>(_query.OrderBy(field.GetFieldName()));
+            return new TypedQuery<TDocument>(Query.OrderBy(field.GetFieldName()));
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the additional specified ordering applied.</returns>
         public TypedQuery<TDocument> OrderByDescending<TField>(Expression<Func<TDocument, TField>> field)
         {
-            return new TypedQuery<TDocument>(_query.OrderByDescending(field.GetFieldName()));
+            return new TypedQuery<TDocument>(Query.OrderByDescending(field.GetFieldName()));
         }
 
 
@@ -290,7 +290,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified limit applied.</returns>
         public TypedQuery<TDocument> Limit(int limit)
         {
-            return new TypedQuery<TDocument>(_query.Limit(limit));
+            return new TypedQuery<TDocument>(Query.Limit(limit));
         }
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified limit applied.</returns>
         public TypedQuery<TDocument> LimitToLast(int limit)
         {
-            return new TypedQuery<TDocument>(_query.LimitToLast(limit));
+            return new TypedQuery<TDocument>(Query.LimitToLast(limit));
         }
 
         /// <summary>
@@ -324,7 +324,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified offset applied.</returns>
         public TypedQuery<TDocument> Offset(int offset)
         {
-            return new TypedQuery<TDocument>(_query.Offset(offset));
+            return new TypedQuery<TDocument>(Query.Offset(offset));
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified start position.</returns>
         public TypedQuery<TDocument> StartAt(params object[] fieldValues)
         {
-            return new TypedQuery<TDocument>(_query.StartAt(fieldValues));
+            return new TypedQuery<TDocument>(Query.StartAt(fieldValues));
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified start position.</returns>
         public TypedQuery<TDocument> StartAfter(params object[] fieldValues)
         {
-            return new TypedQuery<TDocument>(_query.StartAfter(fieldValues));
+            return new TypedQuery<TDocument>(Query.StartAfter(fieldValues));
         }
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified end position.</returns>
         public TypedQuery<TDocument> EndBefore(params object[] fieldValues)
         {
-            return new TypedQuery<TDocument>(_query.EndBefore(fieldValues));
+            return new TypedQuery<TDocument>(Query.EndBefore(fieldValues));
         }
 
         /// <summary>
@@ -380,7 +380,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified end position.</returns>
         public TypedQuery<TDocument> EndAt(params object[] fieldValues)
         {
-            return new TypedQuery<TDocument>(_query.EndAt(fieldValues));
+            return new TypedQuery<TDocument>(Query.EndAt(fieldValues));
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified start position.</returns>
         public TypedQuery<TDocument> StartAt(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(_query.StartAt(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.StartAt(snapshot.Snapshot));
         }
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified start position.</returns>
         public TypedQuery<TDocument> StartAfter(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(_query.StartAfter(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.StartAfter(snapshot.Snapshot));
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified end position.</returns>
         public TypedQuery<TDocument> EndBefore(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(_query.EndBefore(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.EndBefore(snapshot.Snapshot));
         }
 
         /// <summary>
@@ -437,7 +437,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified end position.</returns>
         public TypedQuery<TDocument> EndAt(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(_query.EndAt(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.EndAt(snapshot.Snapshot));
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace Firestore.Typed.Client
         public async IAsyncEnumerable<TypedDocumentSnapshot<TDocument>> StreamAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            await foreach (DocumentSnapshot snapshot in _query.StreamAsync(cancellationToken).ConfigureAwait(false))
+            await foreach (DocumentSnapshot snapshot in Query.StreamAsync(cancellationToken).ConfigureAwait(false))
             {
                 yield return new TypedDocumentSnapshot<TDocument>(snapshot);
             }
@@ -472,7 +472,7 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return _query.GetHashCode();
+            return Query.GetHashCode();
         }
     }
 }

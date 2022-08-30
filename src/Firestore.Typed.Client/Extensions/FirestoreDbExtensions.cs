@@ -1,4 +1,8 @@
-﻿using Google.Cloud.Firestore;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Google.Cloud.Firestore;
 
 namespace Firestore.Typed.Client.Extensions
 {
@@ -30,6 +34,29 @@ namespace Firestore.Typed.Client.Extensions
             this FirestoreDb firestoreDb)
         {
             return new TypedWriteBatch<TDocument>(firestoreDb.StartBatch());
+        }
+
+
+        /// <summary>
+        /// Runs a typed transaction asynchronously.
+        /// </summary>
+        /// <param name="firestoreDb"></param>
+        /// <param name="callback"></param>
+        /// <param name="options"></param>
+        /// <param name="cancellationToken"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <typeparam name="TDocument"></typeparam>
+        /// <returns></returns>
+        public static Task<TResult> RunTypedTransactionAsync<TResult, TDocument>(
+            this FirestoreDb firestoreDb,
+            Func<TypedTransaction<TDocument>, Task<TResult>> callback,
+            TransactionOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            return firestoreDb.RunTransactionAsync(
+                (transaction => callback(new TypedTransaction<TDocument>(transaction))),
+                options,
+                cancellationToken);
         }
     }
 }
