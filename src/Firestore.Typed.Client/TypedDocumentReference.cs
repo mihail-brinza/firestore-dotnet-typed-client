@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Firestore.Typed.Client.Extensions;
+
 using Google.Cloud.Firestore;
 
 using Grpc.Core;

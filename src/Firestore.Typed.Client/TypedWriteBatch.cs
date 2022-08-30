@@ -4,6 +4,8 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Firestore.Typed.Client.Extensions;
+
 using Google.Api.Gax;
 using Google.Cloud.Firestore;
 

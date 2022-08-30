@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace Firestore.Typed.Client
+namespace Firestore.Typed.Client.Extensions
 {
     /// <summary>
     ///     Extension on the official <see cref="FirestoreDb" />

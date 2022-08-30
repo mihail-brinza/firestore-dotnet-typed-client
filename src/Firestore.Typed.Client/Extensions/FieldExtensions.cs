@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 using Firestore.Typed.Client.Visitor;
 
-namespace Firestore.Typed.Client
+namespace Firestore.Typed.Client.Extensions
 {
     /// <summary>
     ///     Extensions on <see cref="Expression" />

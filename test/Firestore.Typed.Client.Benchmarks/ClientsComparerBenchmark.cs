@@ -1,6 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 
+using Firestore.Typed.Client.Extensions;
 using Firestore.Typed.Client.Tests.Model;
 using Firestore.Typed.Client.Tests.Utils;
 

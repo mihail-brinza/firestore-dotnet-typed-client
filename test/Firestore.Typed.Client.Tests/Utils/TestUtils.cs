@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Bogus;
 
+using Firestore.Typed.Client.Extensions;
 using Firestore.Typed.Client.Tests.Model;
 
 using FluentAssertions;

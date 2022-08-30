@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 using Firestore.Typed.Client.Exceptions;
+using Firestore.Typed.Client.Extensions;
 
 using Google.Cloud.Firestore;
 

@@ -1,6 +1,8 @@
 using System;
 using System.Linq.Expressions;
 
+using Firestore.Typed.Client.Extensions;
+
 using Google.Cloud.Firestore;
 
 namespace Firestore.Typed.Client

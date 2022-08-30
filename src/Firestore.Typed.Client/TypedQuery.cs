@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Firestore.Typed.Client.Extensions;
+
 using Google.Cloud.Firestore;
 
 namespace Firestore.Typed.Client
