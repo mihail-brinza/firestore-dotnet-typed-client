@@ -482,5 +482,15 @@ namespace Firestore.Typed.Client
         {
             return typedQuery.Untyped;
         }
+
+
+        /// <summary>
+        /// Implicitly converts an untyped object to a typed object.
+        /// </summary>
+        /// <returns></returns>
+        public static implicit operator TypedQuery<TDocument>(Query query)
+        {
+            return new TypedQuery<TDocument>(query);
+        }
     }
 }

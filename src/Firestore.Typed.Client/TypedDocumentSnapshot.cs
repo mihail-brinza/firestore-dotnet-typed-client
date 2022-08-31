@@ -158,5 +158,14 @@ namespace Firestore.Typed.Client
         {
             return documentSnapshot.Untyped;
         }
+
+        /// <summary>
+        /// Implicitly converts an untyped object to a typed object.
+        /// </summary>
+        /// <returns></returns>
+        public static implicit operator TypedDocumentSnapshot<TDocument>(DocumentSnapshot documentSnapshot)
+        {
+            return new TypedDocumentSnapshot<TDocument>(documentSnapshot);
+        }
     }
 }

@@ -200,5 +200,15 @@ namespace Firestore.Typed.Client
         {
             return transaction.Untyped;
         }
+
+
+        /// <summary>
+        /// Implicitly converts an untyped object to a typed object.
+        /// </summary>
+        /// <returns></returns>
+        public static implicit operator TypedTransaction<TDocument>(Transaction transaction)
+        {
+            return new TypedTransaction<TDocument>(transaction);
+        }
     }
 }

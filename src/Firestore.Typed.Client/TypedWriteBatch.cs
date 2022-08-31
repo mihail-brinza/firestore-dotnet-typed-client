@@ -107,13 +107,23 @@ namespace Firestore.Typed.Client
         {
             return Untyped.CommitAsync(cancellationToken);
         }
-        
+
         /// <summary>
         /// Implicitly converts a typed object to an untyped object.
         /// </summary>
         public static implicit operator WriteBatch(TypedWriteBatch<TDocument> writeBatch)
         {
             return writeBatch.Untyped;
+        }
+
+
+        /// <summary>
+        /// Implicitly converts an untyped object to a typed object.
+        /// </summary>
+        /// <returns></returns>
+        public static implicit operator TypedWriteBatch<TDocument>(WriteBatch writeBatch)
+        {
+            return new TypedWriteBatch<TDocument>(writeBatch);
         }
     }
 }

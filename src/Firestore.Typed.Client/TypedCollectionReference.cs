@@ -149,5 +149,15 @@ namespace Firestore.Typed.Client
         {
             return collectionReference.Untyped;
         }
+
+        /// <summary>
+        /// Implicitly converts an untyped object to a typed object.
+        /// </summary>
+        /// <param name="collectionReference"></param>
+        /// <returns></returns>
+        public static implicit operator TypedCollectionReference<TDocument>(CollectionReference collectionReference)
+        {
+            return new TypedCollectionReference<TDocument>(collectionReference);
+        }
     }
 }
