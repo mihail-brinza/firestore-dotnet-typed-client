@@ -21,41 +21,41 @@ namespace Firestore.Typed.Client
     public sealed class TypedDocumentReference<TDocument> : IEquatable<TypedDocumentReference<TDocument>>,
                                                             IComparable<TypedDocumentReference<TDocument>>
     {
-        internal DocumentReference Reference { get; }
+        internal DocumentReference UntypedReference { get; }
 
-        public TypedDocumentReference(DocumentReference documentReference)
+        public TypedDocumentReference(DocumentReference documentUntypedReference)
         {
-            Reference = documentReference;
+            UntypedReference = documentUntypedReference;
         }
 
         /// <summary>
         ///     The final part of the complete document path; this is the identity of
         ///     the document relative to its parent collection.
         /// </summary>
-        public string Id => Reference.Id;
+        public string Id => UntypedReference.Id;
 
         /// <summary>
         ///     The complete document path, including project and database ID.
         /// </summary>
-        public string Path => Reference.Path;
+        public string Path => UntypedReference.Path;
 
         /// <summary>
         ///     The database which contains the document.
         /// </summary>
-        public FirestoreDb Database => Reference.Database;
+        public FirestoreDb Database => UntypedReference.Database;
 
         // Note: this implementation wastefully compares the characters in "projects" and "databases" but means we don't need
         // to keep a database-relative path or perform more complex comparisons.
         /// <inheritdoc />
         public int CompareTo(TypedDocumentReference<TDocument>? other)
         {
-            return Reference.CompareTo(other?.Reference);
+            return UntypedReference.CompareTo(other?.UntypedReference);
         }
 
         /// <inheritdoc />
         public bool Equals(TypedDocumentReference<TDocument>? other)
         {
-            return Reference.Equals(other?.Reference);
+            return UntypedReference.Equals(other?.UntypedReference);
         }
 
 
@@ -65,7 +65,7 @@ namespace Firestore.Typed.Client
         /// </summary>
         public TypedCollectionReference<TParent> Parent<TParent>()
         {
-            return new TypedCollectionReference<TParent>(Reference.Parent);
+            return new TypedCollectionReference<TParent>(UntypedReference.Parent);
         }
 
         /// <summary>
@@ -78,28 +78,30 @@ namespace Firestore.Typed.Client
         /// <returns>A <see cref="TypedCollectionReference{TDocument}" /> for the specified collection.</returns>
         public TypedCollectionReference<TChildDocument> Collection<TChildDocument>(string path)
         {
-            return new TypedCollectionReference<TChildDocument>(Reference.Collection(path));
+            return new TypedCollectionReference<TChildDocument>(UntypedReference.Collection(path));
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return Reference.ToString();
+            return UntypedReference.ToString();
         }
 
         /// <summary>
         ///     Asynchronously fetches a snapshot of the document.
         /// </summary>
         /// <returns>A snapshot of the document. The snapshot may represent a missing document.</returns>
-        public async Task<TypedDocumentSnapshot<TDocument>> GetSnapshotAsync(CancellationToken cancellationToken = default)
+        public async Task<TypedDocumentSnapshot<TDocument>> GetSnapshotAsync(
+            CancellationToken cancellationToken = default)
         {
-            DocumentSnapshot snapshot = await Reference.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            DocumentSnapshot snapshot =
+                await UntypedReference.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
             return new TypedDocumentSnapshot<TDocument>(snapshot, this);
         }
 
         public TypedCollectionReference<TField> Collection<TField>(Expression<Func<TDocument, TField>> field)
         {
-            return new TypedCollectionReference<TField>(Reference.Collection(field.GetFieldName()));
+            return new TypedCollectionReference<TField>(UntypedReference.Collection(field.GetFieldName()));
         }
 
         /// <summary>
@@ -112,7 +114,7 @@ namespace Firestore.Typed.Client
             TDocument documentData,
             CancellationToken cancellationToken = default)
         {
-            return Reference.CreateAsync(documentData, cancellationToken);
+            return UntypedReference.CreateAsync(documentData, cancellationToken);
         }
 
 
@@ -133,7 +135,7 @@ namespace Firestore.Typed.Client
             Precondition? precondition = null,
             CancellationToken cancellationToken = default)
         {
-            return Reference.DeleteAsync(precondition, cancellationToken);
+            return UntypedReference.DeleteAsync(precondition, cancellationToken);
         }
 
         /// <summary>
@@ -154,7 +156,7 @@ namespace Firestore.Typed.Client
             Precondition? precondition = null,
             CancellationToken cancellationToken = default)
         {
-            return Reference.UpdateAsync(field.GetFieldName(), value, precondition, cancellationToken);
+            return UntypedReference.UpdateAsync(field.GetFieldName(), value, precondition, cancellationToken);
         }
 
         /// <summary>
@@ -175,7 +177,7 @@ namespace Firestore.Typed.Client
             Precondition? precondition = null,
             CancellationToken cancellationToken = default)
         {
-            return Reference.UpdateAsync(updateDefinition.UpdateValues, precondition, cancellationToken);
+            return UntypedReference.UpdateAsync(updateDefinition.UpdateValues, precondition, cancellationToken);
         }
 
 
@@ -194,7 +196,7 @@ namespace Firestore.Typed.Client
             SetOptions? options = null,
             CancellationToken cancellationToken = default)
         {
-            return Reference.SetAsync(documentData, options, cancellationToken);
+            return UntypedReference.SetAsync(documentData, options, cancellationToken);
         }
 
         /// <summary>
@@ -212,7 +214,7 @@ namespace Firestore.Typed.Client
             TypedSetOptions<TDocument>? options = null,
             CancellationToken cancellationToken = default)
         {
-            return Reference.SetAsync(documentData, options?.SetOptions, cancellationToken);
+            return UntypedReference.SetAsync(documentData, options?.SetOptions, cancellationToken);
         }
 
         /// <summary>
@@ -228,7 +230,7 @@ namespace Firestore.Typed.Client
             Func<TypedDocumentSnapshot<TDocument>, CancellationToken, Task> callback,
             CancellationToken cancellationToken = default)
         {
-            return Reference.Listen(
+            return UntypedReference.Listen(
                 (snapshot, token) => callback(new TypedDocumentSnapshot<TDocument>(snapshot, this), token),
                 cancellationToken);
         }
@@ -249,7 +251,7 @@ namespace Firestore.Typed.Client
             Action<TypedDocumentSnapshot<TDocument>> callback,
             CancellationToken cancellationToken = default)
         {
-            return Reference.Listen(
+            return UntypedReference.Listen(
                 snapshot => callback(new TypedDocumentSnapshot<TDocument>(snapshot, this)),
                 cancellationToken);
         }
@@ -264,7 +266,16 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return Reference.GetHashCode();
+            return UntypedReference.GetHashCode();
+        }
+
+
+        /// <summary>
+        /// Implicitly converts a typed object to an untyped object.
+        /// </summary>
+        public static implicit operator DocumentReference(TypedDocumentReference<TDocument> documentReference)
+        {
+            return documentReference.UntypedReference;
         }
     }
 }

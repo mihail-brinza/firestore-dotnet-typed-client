@@ -394,7 +394,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified start position.</returns>
         public TypedQuery<TDocument> StartAt(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(Query.StartAt(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.StartAt(snapshot.UntypedSnapshot));
         }
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified start position.</returns>
         public TypedQuery<TDocument> StartAfter(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(Query.StartAfter(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.StartAfter(snapshot.UntypedSnapshot));
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified end position.</returns>
         public TypedQuery<TDocument> EndBefore(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(Query.EndBefore(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.EndBefore(snapshot.UntypedSnapshot));
         }
 
         /// <summary>
@@ -437,7 +437,7 @@ namespace Firestore.Typed.Client
         /// <returns>A new query based on the current one, but with the specified end position.</returns>
         public TypedQuery<TDocument> EndAt(TypedDocumentSnapshot<TDocument> snapshot)
         {
-            return new TypedQuery<TDocument>(Query.EndAt(snapshot.Snapshot));
+            return new TypedQuery<TDocument>(Query.EndAt(snapshot.UntypedSnapshot));
         }
 
         /// <summary>
@@ -473,6 +473,14 @@ namespace Firestore.Typed.Client
         public override int GetHashCode()
         {
             return Query.GetHashCode();
+        }
+
+        /// <summary>
+        /// Implicitly converts a typed object to an untyped object.
+        /// </summary>
+        public static implicit operator Query(TypedQuery<TDocument> typedQuery)
+        {
+            return typedQuery.Query;
         }
     }
 }

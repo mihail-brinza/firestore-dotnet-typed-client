@@ -47,7 +47,7 @@ namespace Firestore.Typed.Client.Extensions
         /// <typeparam name="TResult"></typeparam>
         /// <typeparam name="TDocument"></typeparam>
         /// <returns></returns>
-        public static Task<TResult> RunTypedTransactionAsync<TResult, TDocument>(
+        public static Task<TResult> RunTypedTransactionAsync<TDocument, TResult>(
             this FirestoreDb firestoreDb,
             Func<TypedTransaction<TDocument>, Task<TResult>> callback,
             TransactionOptions? options = null,

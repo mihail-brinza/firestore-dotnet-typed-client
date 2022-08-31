@@ -17,13 +17,13 @@ namespace Firestore.Typed.Client
     {
         private readonly Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> _lazyTypedChangeList;
         private readonly Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> _lazyTypedDocuments;
-        private readonly QuerySnapshot _snapshot;
+        private QuerySnapshot Snapshot { get; }
 
         public TypedQuerySnapshot(QuerySnapshot snapshot, TypedQuery<TDocument> query)
         {
-            Query                = query;
-            _snapshot            = snapshot;
-            _lazyTypedDocuments  = BuildLazyTypedDocuments(snapshot);
+            Query = query;
+            Snapshot = snapshot;
+            _lazyTypedDocuments = BuildLazyTypedDocuments(snapshot);
             _lazyTypedChangeList = BuildLazyTypedChangeList(snapshot);
         }
 
@@ -45,7 +45,7 @@ namespace Firestore.Typed.Client
         /// <summary>
         ///     The time at which the snapshot was read.
         /// </summary>
-        public Timestamp ReadTime => _snapshot.ReadTime;
+        public Timestamp ReadTime => Snapshot.ReadTime;
 
         /// <summary>
         ///     Returns the number of documents in this query snapshot.
@@ -85,7 +85,7 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public bool Equals(TypedQuerySnapshot<TDocument>? other)
         {
-            return _snapshot.Equals(other?._snapshot);
+            return Snapshot.Equals(other?.Snapshot);
         }
 
         /// <inheritdoc />
@@ -109,7 +109,15 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return _snapshot.GetHashCode();
+            return Snapshot.GetHashCode();
+        }
+
+        /// <summary>
+        /// Implicitly converts a typed object to an untyped object.
+        /// </summary>
+        public static implicit operator QuerySnapshot(TypedQuerySnapshot<TDocument> querySnapshot)
+        {
+            return querySnapshot.Snapshot;
         }
     }
 }

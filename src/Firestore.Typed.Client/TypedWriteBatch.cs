@@ -31,7 +31,7 @@ namespace Firestore.Typed.Client
             TypedDocumentReference<TDocument> documentReference,
             TDocument documentData)
         {
-            Batch = Batch.Create(documentReference.Reference, documentData);
+            Batch = Batch.Create(documentReference.UntypedReference, documentData);
             return this;
         }
 
@@ -45,7 +45,7 @@ namespace Firestore.Typed.Client
             TypedDocumentReference<TDocument> documentReference,
             Precondition? precondition = null)
         {
-            Batch = Batch.Delete(documentReference.Reference, precondition);
+            Batch = Batch.Delete(documentReference.UntypedReference, precondition);
             return this;
         }
 
@@ -61,7 +61,7 @@ namespace Firestore.Typed.Client
             UpdateDefinition<TDocument> updates,
             Precondition? precondition = null)
         {
-            Batch = Batch.Update(documentReference.Reference, updates.UpdateValues, precondition);
+            Batch = Batch.Update(documentReference.UntypedReference, updates.UpdateValues, precondition);
             return this;
         }
 
@@ -79,7 +79,7 @@ namespace Firestore.Typed.Client
             TField value,
             Precondition? precondition = null)
         {
-            Batch = Batch.Update(documentReference.Reference, field.GetFieldName(), value, precondition);
+            Batch = Batch.Update(documentReference.UntypedReference, field.GetFieldName(), value, precondition);
             return this;
         }
 
@@ -95,7 +95,7 @@ namespace Firestore.Typed.Client
             TDocument documentData,
             TypedSetOptions<TDocument>? options = null)
         {
-            Batch = Batch.Set(documentReference.Reference, documentData, options?.SetOptions);
+            Batch = Batch.Set(documentReference.UntypedReference, documentData, options?.SetOptions);
             return this;
         }
 
@@ -106,6 +106,14 @@ namespace Firestore.Typed.Client
         public Task<IList<WriteResult>> CommitAsync(CancellationToken cancellationToken = default)
         {
             return Batch.CommitAsync(cancellationToken);
+        }
+        
+        /// <summary>
+        /// Implicitly converts a typed object to an untyped object.
+        /// </summary>
+        public static implicit operator WriteBatch(TypedWriteBatch<TDocument> writeBatch)
+        {
+            return writeBatch.Batch;
         }
     }
 }

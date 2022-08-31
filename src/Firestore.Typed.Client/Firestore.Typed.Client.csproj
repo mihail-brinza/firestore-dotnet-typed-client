@@ -7,7 +7,7 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <IsPackable>true</IsPackable>
         <PackageId>Firestore.Typed.Client</PackageId>
-        <PackageVersion>1.0.3</PackageVersion>
+        <PackageVersion>1.0.4</PackageVersion>
         <Authors>Mihail Brinza</Authors>
         <Description>
             A wrapper on top of the official Firestore Client that adds type safety to your queries while

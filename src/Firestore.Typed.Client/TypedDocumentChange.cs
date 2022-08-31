@@ -11,12 +11,12 @@ namespace Firestore.Typed.Client
     /// </summary>
     public sealed class TypedDocumentChange<TDocument> : IEquatable<TypedDocumentChange<TDocument>>
     {
-        private readonly DocumentChange _documentChange;
-        
+        private DocumentChange Change { get; }
+
         public TypedDocumentChange(DocumentChange documentChange)
         {
-            _documentChange = documentChange;
-            Document        = new TypedDocumentSnapshot<TDocument>(documentChange.Document);
+            Change = documentChange;
+            Document = new TypedDocumentSnapshot<TDocument>(documentChange.Document);
         }
 
         /// <summary>
@@ -27,21 +27,21 @@ namespace Firestore.Typed.Client
         /// <summary>
         ///     The type of change that was observed.
         /// </summary>
-        public DocumentChange.Type ChangeType => _documentChange.ChangeType;
+        public DocumentChange.Type ChangeType => Change.ChangeType;
 
         /// <summary>
         ///     The index of the changed document in the result set immediately prior to this DocumentChange
         ///     (i.e. supposing that all prior DocumentChange objects have been applied), or null
         ///     if the change type is <see cref="DocumentChange.Type.Added" />. The index will never be negative.
         /// </summary>
-        public int? OldIndex => _documentChange.OldIndex;
+        public int? OldIndex => Change.OldIndex;
 
         /// <summary>
         ///     The index of the changed document in the result set immediately after this DocumentChange
         ///     (i.e. supposing that all prior DocumentChange objects and this one have been applied),
         ///     null if the change type is <see cref="DocumentChange.Type.Removed" />. The index will never be negative.
         /// </summary>
-        public int? NewIndex => _documentChange.NewIndex;
+        public int? NewIndex => Change.NewIndex;
 
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Firestore.Typed.Client
         /// <returns><c>true</c> if this snapshot is equal to <paramref name="other" />; <c>false</c> otherwise.</returns>
         public bool Equals(TypedDocumentChange<TDocument>? other)
         {
-            return _documentChange.Equals(other?._documentChange);
+            return Change.Equals(other?.Change);
         }
 
         /// <inheritdoc />
@@ -64,7 +64,15 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return _documentChange.GetHashCode();
+            return Change.GetHashCode();
+        }
+
+        /// <summary>
+        /// Implicitly converts a typed object to an untyped object.
+        /// </summary>
+        public static implicit operator DocumentChange(TypedDocumentChange<TDocument> documentChange)
+        {
+            return documentChange.Change;
         }
     }
 }
