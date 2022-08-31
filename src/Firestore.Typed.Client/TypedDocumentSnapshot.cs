@@ -16,42 +16,42 @@ namespace Firestore.Typed.Client
     /// </summary>
     public sealed class TypedDocumentSnapshot<TDocument> : IEquatable<TypedDocumentSnapshot<TDocument>>
     {
-        public TypedDocumentSnapshot(DocumentSnapshot untypedSnapshot, TypedDocumentReference<TDocument> reference)
+        public TypedDocumentSnapshot(DocumentSnapshot untyped, TypedDocumentReference<TDocument> reference)
         {
-            UntypedSnapshot = untypedSnapshot;
+            Untyped = untyped;
             Reference = reference;
         }
 
-        public TypedDocumentSnapshot(DocumentSnapshot untypedSnapshot) :
-            this(untypedSnapshot, new TypedDocumentReference<TDocument>(untypedSnapshot.Reference))
+        public TypedDocumentSnapshot(DocumentSnapshot untyped) :
+            this(untyped, new TypedDocumentReference<TDocument>(untyped.Reference))
         {
         }
 
-        internal DocumentSnapshot UntypedSnapshot { get; }
+        public DocumentSnapshot Untyped { get; }
 
         /// <summary>
         ///     The ID of the document.
         /// </summary>
-        public string Id => UntypedSnapshot.Id;
+        public string Id => Untyped.Id;
 
         /// <summary>
         ///     The database that owns the document.
         /// </summary>
-        public FirestoreDb Database => UntypedSnapshot.Database;
+        public FirestoreDb Database => Untyped.Database;
 
         /// <summary>
         ///     The data converted to the specified type. Returns null if object does not exist.
         ///     For each invocation returns a new instance, just like <see cref="DocumentSnapshot.ConvertTo{T}"/>
         /// </summary>
-        public TDocument Object => UntypedSnapshot.ConvertTo<TDocument>();
+        public TDocument Object => Untyped.ConvertTo<TDocument>();
 
         /// <summary>
         ///     The data converted to the specified type.
         ///     <exception cref="DocumentNotFoundException">The document does not exist.</exception>
         /// </summary>
-        public TDocument RequiredObject => UntypedSnapshot.Exists
+        public TDocument RequiredObject => Untyped.Exists
             ? Object
-            : throw new DocumentNotFoundException(UntypedSnapshot.Id);
+            : throw new DocumentNotFoundException(Untyped.Id);
 
         /// <summary>
         ///     The full reference to the document.
@@ -61,22 +61,22 @@ namespace Firestore.Typed.Client
         /// <summary>
         ///     Whether or not the document exists.
         /// </summary>
-        public bool Exists => UntypedSnapshot.Exists;
+        public bool Exists => Untyped.Exists;
 
         /// <summary>
         ///     The creation time of the document if it exists, or null otherwise.
         /// </summary>
-        public Timestamp? CreateTime => UntypedSnapshot.CreateTime;
+        public Timestamp? CreateTime => Untyped.CreateTime;
 
         /// <summary>
         ///     The update time of the document if it exists, or null otherwise.
         /// </summary>
-        public Timestamp? UpdateTime => UntypedSnapshot.UpdateTime;
+        public Timestamp? UpdateTime => Untyped.UpdateTime;
 
         /// <summary>
         ///     The time at which this snapshot was read.
         /// </summary>
-        public Timestamp ReadTime => UntypedSnapshot.ReadTime;
+        public Timestamp ReadTime => Untyped.ReadTime;
 
         /// <summary>
         ///     Compares this snapshot with another for equality. Only the document data and document reference
@@ -86,12 +86,12 @@ namespace Firestore.Typed.Client
         /// <returns><c>true</c> if this snapshot is equal to <paramref name="other" />; <c>false</c> otherwise.</returns>
         public bool Equals(TypedDocumentSnapshot<TDocument>? other)
         {
-            return UntypedSnapshot.Equals(other?.UntypedSnapshot);
+            return Untyped.Equals(other?.Untyped);
         }
 
         public Dictionary<string, object> ToDictionary()
         {
-            return UntypedSnapshot.ToDictionary();
+            return Untyped.ToDictionary();
         }
 
 
@@ -103,7 +103,7 @@ namespace Firestore.Typed.Client
         /// <returns>The deserialized value.</returns>
         public TField GetValue<TField>(Expression<Func<TDocument, TField>> field)
         {
-            return UntypedSnapshot.GetValue<TField>(field.GetFieldName());
+            return Untyped.GetValue<TField>(field.GetFieldName());
         }
 
 
@@ -125,7 +125,7 @@ namespace Firestore.Typed.Client
         /// <returns>true if the field was found; false otherwise.</returns>
         public bool TryGetValue<TField>(Expression<Func<TDocument, TField>> field, [NotNullWhen(true)] out TField value)
         {
-            return UntypedSnapshot.TryGetValue(field.GetFieldName(), out value);
+            return Untyped.TryGetValue(field.GetFieldName(), out value);
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Firestore.Typed.Client
         /// <returns>true if the specified path represents a field in the document; false otherwise</returns>
         public bool ContainsField<TField>(Expression<Func<TDocument, TField>> field)
         {
-            return UntypedSnapshot.ContainsField(field.GetFieldName());
+            return Untyped.ContainsField(field.GetFieldName());
         }
 
         /// <inheritdoc />
@@ -148,7 +148,7 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return UntypedSnapshot.GetHashCode();
+            return Untyped.GetHashCode();
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace Firestore.Typed.Client
         /// </summary>
         public static implicit operator DocumentSnapshot(TypedDocumentSnapshot<TDocument> documentSnapshot)
         {
-            return documentSnapshot.UntypedSnapshot;
+            return documentSnapshot.Untyped;
         }
     }
 }

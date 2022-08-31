@@ -17,28 +17,28 @@ namespace Firestore.Typed.Client
                                                               IEquatable<TypedCollectionReference<TDocument>>,
                                                               IComparable<TypedCollectionReference<TDocument>>
     {
-        private CollectionReference UntypedCollection { get; }
+        public CollectionReference Untyped { get; }
 
-        internal TypedCollectionReference(CollectionReference untypedCollection) : base(untypedCollection)
+        internal TypedCollectionReference(CollectionReference untyped) : base(untyped)
         {
-            UntypedCollection = untypedCollection;
+            Untyped = untyped;
         }
 
         /// <summary>
         ///     The final part of the complete collection path; this is the identity of
         ///     the collection relative to its parent document.
         /// </summary>
-        public string Id => UntypedCollection.Id;
+        public string Id => Untyped.Id;
 
         /// <summary>
         ///     The complete collection path, including project and database ID.
         /// </summary>
-        public string Path => UntypedCollection.Path;
+        public string Path => Untyped.Path;
 
         /// <summary>
         ///     The parent document, or null if this is a root collection.
         /// </summary>
-        public override FirestoreDb Database => UntypedCollection.Database;
+        public override FirestoreDb Database => Untyped.Database;
 
 
         /// <summary>
@@ -47,12 +47,12 @@ namespace Firestore.Typed.Client
         /// </summary>
         internal TypedDocumentReference<TParentCollection>? Parent<TParentCollection>()
         {
-            if (UntypedCollection.Parent is null)
+            if (Untyped.Parent is null)
             {
                 return null;
             }
 
-            return new TypedDocumentReference<TParentCollection>(UntypedCollection.Parent);
+            return new TypedDocumentReference<TParentCollection>(Untyped.Parent);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Firestore.Typed.Client
         /// <returns>A <see cref="TypedDocumentReference{TDocument}" /> to a child document of this collection with a random ID.</returns>
         public TypedDocumentReference<TDocument> Document()
         {
-            return new TypedDocumentReference<TDocument>(UntypedCollection.Document());
+            return new TypedDocumentReference<TDocument>(Untyped.Document());
         }
 
 
@@ -77,7 +77,7 @@ namespace Firestore.Typed.Client
         /// <returns>A <see cref="TypedDocumentReference{TDocument}" /> for the specified document.</returns>
         public TypedDocumentReference<TDocument> Document(string path)
         {
-            return new TypedDocumentReference<TDocument>(UntypedCollection.Document(path));
+            return new TypedDocumentReference<TDocument>(Untyped.Document(path));
         }
 
 
@@ -97,7 +97,7 @@ namespace Firestore.Typed.Client
             CancellationToken cancellationToken = default)
         {
             DocumentReference document =
-                await UntypedCollection.AddAsync(documentData, cancellationToken).ConfigureAwait(false);
+                await Untyped.AddAsync(documentData, cancellationToken).ConfigureAwait(false);
             return new TypedDocumentReference<TDocument>(document);
         }
 
@@ -109,7 +109,7 @@ namespace Firestore.Typed.Client
         /// <returns>A lazily-iterated sequence of document references within this collection.</returns>
         public async IAsyncEnumerable<TypedDocumentReference<TDocument>> ListDocumentsAsync()
         {
-            await foreach (DocumentReference? documentRef in UntypedCollection.ListDocumentsAsync()
+            await foreach (DocumentReference? documentRef in Untyped.ListDocumentsAsync()
                 .ConfigureAwait(false))
             {
                 yield return new TypedDocumentReference<TDocument>(documentRef);
@@ -125,19 +125,19 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return UntypedCollection.GetHashCode();
+            return Untyped.GetHashCode();
         }
 
         /// <inheritdoc />
         public int CompareTo(TypedCollectionReference<TDocument>? other)
         {
-            return UntypedCollection.CompareTo(other?.UntypedCollection);
+            return Untyped.CompareTo(other?.Untyped);
         }
 
         /// <inheritdoc />
         public bool Equals(TypedCollectionReference<TDocument>? other)
         {
-            return UntypedCollection.Equals(other?.UntypedCollection);
+            return Untyped.Equals(other?.Untyped);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Firestore.Typed.Client
         /// <returns></returns>
         public static implicit operator CollectionReference(TypedCollectionReference<TDocument> collectionReference)
         {
-            return collectionReference.UntypedCollection;
+            return collectionReference.Untyped;
         }
     }
 }

@@ -13,22 +13,22 @@ namespace Firestore.Typed.Client
 {
     public class TypedTransaction<TDocument>
     {
-        private Transaction Transaction { get; }
+        public Transaction Untyped { get; }
 
-        public TypedTransaction(Transaction transaction)
+        public TypedTransaction(Transaction untyped)
         {
-            Transaction = transaction;
+            Untyped = untyped;
         }
 
         /// <summary>
         /// The cancellation token for this transaction
         /// </summary>
-        public CancellationToken CancellationToken => Transaction.CancellationToken;
+        public CancellationToken CancellationToken => Untyped.CancellationToken;
 
         /// <summary>
         /// The database for this transaction.
         /// </summary>
-        public FirestoreDb Database => Transaction.Database;
+        public FirestoreDb Database => Untyped.Database;
 
         /// <summary>
         /// Fetch a snapshot of the document specified by <paramref name="documentReference"/>, with respect to this transaction.
@@ -41,8 +41,8 @@ namespace Firestore.Typed.Client
             TypedDocumentReference<TDocument> documentReference,
             CancellationToken cancellationToken = default)
         {
-            DocumentSnapshot? snapshot = await Transaction
-                .GetSnapshotAsync(documentReference.UntypedReference, cancellationToken)
+            DocumentSnapshot? snapshot = await Untyped
+                .GetSnapshotAsync(documentReference.Untyped, cancellationToken)
                 .ConfigureAwait(false);
 
             return new TypedDocumentSnapshot<TDocument>(snapshot);
@@ -85,10 +85,10 @@ namespace Firestore.Typed.Client
             CancellationToken cancellationToken = default)
         {
             IEnumerable<DocumentReference> documents = documentReferences
-                .Select(doc => doc.UntypedReference)
+                .Select(doc => doc.Untyped)
                 .ToList();
 
-            IList<DocumentSnapshot> snapshotList = await Transaction
+            IList<DocumentSnapshot> snapshotList = await Untyped
                 .GetAllSnapshotsAsync(documents, fieldMask, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -106,8 +106,8 @@ namespace Firestore.Typed.Client
             TypedQuery<TDocument> query,
             CancellationToken cancellationToken = default)
         {
-            QuerySnapshot? snapshot = await Transaction
-                .GetSnapshotAsync(query.Query, cancellationToken)
+            QuerySnapshot? snapshot = await Untyped
+                .GetSnapshotAsync(query.Untyped, cancellationToken)
                 .ConfigureAwait(false);
 
             return new TypedQuerySnapshot<TDocument>(snapshot, query);
@@ -121,7 +121,7 @@ namespace Firestore.Typed.Client
         /// <param name="documentData">The data for the document. Must not be null.</param>
         public void Create(TypedDocumentReference<TDocument> documentReference, TDocument documentData)
         {
-            Transaction.Create(documentReference.UntypedReference, documentData);
+            Untyped.Create(documentReference.Untyped, documentData);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Firestore.Typed.Client
             TDocument documentData,
             SetOptions? options = null)
         {
-            Transaction.Set(documentReference.UntypedReference, documentData, options);
+            Untyped.Set(documentReference.Untyped, documentData, options);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Firestore.Typed.Client
             IDictionary<string, object> updates,
             Precondition? precondition = null)
         {
-            Transaction.Update(documentReference.UntypedReference, updates, precondition);
+            Untyped.Update(documentReference.Untyped, updates, precondition);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Firestore.Typed.Client
             TDocument value,
             Precondition? precondition = null)
         {
-            Transaction.Update(documentReference.UntypedReference, field.GetFieldName(), value, precondition);
+            Untyped.Update(documentReference.Untyped, field.GetFieldName(), value, precondition);
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Firestore.Typed.Client
             UpdateDefinition<TDocument> updates,
             Precondition? precondition = null)
         {
-            Transaction.Update(documentReference.UntypedReference, updates.UpdateValues, precondition);
+            Untyped.Update(documentReference.Untyped, updates.UpdateValues, precondition);
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace Firestore.Typed.Client
         /// <param name="precondition">Optional precondition for deletion. May be null, in which case the deletion is unconditional.</param>
         public void Delete(TypedDocumentReference<TDocument> documentReference, Precondition? precondition = null)
         {
-            Transaction.Delete(documentReference.UntypedReference, precondition);
+            Untyped.Delete(documentReference.Untyped, precondition);
         }
 
 
@@ -198,7 +198,7 @@ namespace Firestore.Typed.Client
         /// </summary>
         public static implicit operator Transaction(TypedTransaction<TDocument> transaction)
         {
-            return transaction.Transaction;
+            return transaction.Untyped;
         }
     }
 }

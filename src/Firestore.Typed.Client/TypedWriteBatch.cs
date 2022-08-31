@@ -13,11 +13,11 @@ namespace Firestore.Typed.Client
 {
     public class TypedWriteBatch<TDocument>
     {
-        private WriteBatch Batch { get; set; }
+        public WriteBatch Untyped { get; private set; }
 
-        public TypedWriteBatch(WriteBatch batch)
+        public TypedWriteBatch(WriteBatch untyped)
         {
-            Batch = batch;
+            Untyped = untyped;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Firestore.Typed.Client
             TypedDocumentReference<TDocument> documentReference,
             TDocument documentData)
         {
-            Batch = Batch.Create(documentReference.UntypedReference, documentData);
+            Untyped = Untyped.Create(documentReference.Untyped, documentData);
             return this;
         }
 
@@ -45,7 +45,7 @@ namespace Firestore.Typed.Client
             TypedDocumentReference<TDocument> documentReference,
             Precondition? precondition = null)
         {
-            Batch = Batch.Delete(documentReference.UntypedReference, precondition);
+            Untyped = Untyped.Delete(documentReference.Untyped, precondition);
             return this;
         }
 
@@ -61,7 +61,7 @@ namespace Firestore.Typed.Client
             UpdateDefinition<TDocument> updates,
             Precondition? precondition = null)
         {
-            Batch = Batch.Update(documentReference.UntypedReference, updates.UpdateValues, precondition);
+            Untyped = Untyped.Update(documentReference.Untyped, updates.UpdateValues, precondition);
             return this;
         }
 
@@ -79,7 +79,7 @@ namespace Firestore.Typed.Client
             TField value,
             Precondition? precondition = null)
         {
-            Batch = Batch.Update(documentReference.UntypedReference, field.GetFieldName(), value, precondition);
+            Untyped = Untyped.Update(documentReference.Untyped, field.GetFieldName(), value, precondition);
             return this;
         }
 
@@ -95,7 +95,7 @@ namespace Firestore.Typed.Client
             TDocument documentData,
             TypedSetOptions<TDocument>? options = null)
         {
-            Batch = Batch.Set(documentReference.UntypedReference, documentData, options?.SetOptions);
+            Untyped = Untyped.Set(documentReference.Untyped, documentData, options?.SetOptions);
             return this;
         }
 
@@ -105,7 +105,7 @@ namespace Firestore.Typed.Client
         /// <returns>The write results from the commit.</returns>
         public Task<IList<WriteResult>> CommitAsync(CancellationToken cancellationToken = default)
         {
-            return Batch.CommitAsync(cancellationToken);
+            return Untyped.CommitAsync(cancellationToken);
         }
         
         /// <summary>
@@ -113,7 +113,7 @@ namespace Firestore.Typed.Client
         /// </summary>
         public static implicit operator WriteBatch(TypedWriteBatch<TDocument> writeBatch)
         {
-            return writeBatch.Batch;
+            return writeBatch.Untyped;
         }
     }
 }

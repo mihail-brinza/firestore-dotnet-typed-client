@@ -17,14 +17,14 @@ namespace Firestore.Typed.Client
     {
         private readonly Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> _lazyTypedChangeList;
         private readonly Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> _lazyTypedDocuments;
-        private QuerySnapshot Snapshot { get; }
+        public QuerySnapshot Untyped { get; }
 
-        public TypedQuerySnapshot(QuerySnapshot snapshot, TypedQuery<TDocument> query)
+        public TypedQuerySnapshot(QuerySnapshot untyped, TypedQuery<TDocument> query)
         {
             Query = query;
-            Snapshot = snapshot;
-            _lazyTypedDocuments = BuildLazyTypedDocuments(snapshot);
-            _lazyTypedChangeList = BuildLazyTypedChangeList(snapshot);
+            Untyped = untyped;
+            _lazyTypedDocuments = BuildLazyTypedDocuments(untyped);
+            _lazyTypedChangeList = BuildLazyTypedChangeList(untyped);
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Firestore.Typed.Client
         /// <summary>
         ///     The time at which the snapshot was read.
         /// </summary>
-        public Timestamp ReadTime => Snapshot.ReadTime;
+        public Timestamp ReadTime => Untyped.ReadTime;
 
         /// <summary>
         ///     Returns the number of documents in this query snapshot.
@@ -85,7 +85,7 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public bool Equals(TypedQuerySnapshot<TDocument>? other)
         {
-            return Snapshot.Equals(other?.Snapshot);
+            return Untyped.Equals(other?.Untyped);
         }
 
         /// <inheritdoc />
@@ -109,7 +109,7 @@ namespace Firestore.Typed.Client
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return Snapshot.GetHashCode();
+            return Untyped.GetHashCode();
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Firestore.Typed.Client
         /// </summary>
         public static implicit operator QuerySnapshot(TypedQuerySnapshot<TDocument> querySnapshot)
         {
-            return querySnapshot.Snapshot;
+            return querySnapshot.Untyped;
         }
     }
 }
