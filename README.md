@@ -1,6 +1,7 @@
 # Firestore .NET Typed Client
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/mihail-brinza/firestore-dotnet-typed-client/build_and_tests.yml?style=flat-square&label=build%20%26%20tests)
+![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/mihail-brinza/45dfd3f62f057411549e58dd6bbddaf5/raw/coverage-badge.json&style=flat-square)
 ![](https://img.shields.io/github/license/mihail-brinza/firestore-dotnet-typed-client?style=flat-square)
 ![](https://img.shields.io/nuget/dt/Firestore.Typed.Client?style=flat-square)
 ![](https://img.shields.io/nuget/v/Firestore.Typed.Client?style=flat-square)
