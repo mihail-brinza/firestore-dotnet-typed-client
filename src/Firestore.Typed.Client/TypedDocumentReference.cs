@@ -18,15 +18,10 @@ namespace Firestore.Typed.Client
     ///     design
     ///     <typeparam name="TDocument">The type of the document</typeparam>
     /// </summary>
-    public sealed class TypedDocumentReference<TDocument> : IEquatable<TypedDocumentReference<TDocument>>,
-                                                            IComparable<TypedDocumentReference<TDocument>>
+    public sealed class TypedDocumentReference<TDocument>(DocumentReference documentUntyped) : IEquatable<TypedDocumentReference<TDocument>>,
+        IComparable<TypedDocumentReference<TDocument>>
     {
-        public DocumentReference Untyped { get; }
-
-        public TypedDocumentReference(DocumentReference documentUntyped)
-        {
-            Untyped = documentUntyped;
-        }
+        public DocumentReference Untyped { get; } = documentUntyped;
 
         /// <summary>
         ///     The final part of the complete document path; this is the identity of

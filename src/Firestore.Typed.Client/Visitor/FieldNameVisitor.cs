@@ -11,7 +11,6 @@ namespace Firestore.Typed.Client.Visitor
     {
         private const char FieldSeparator = '.';
         private static readonly Type FirestorePropertyAttribute = typeof(FirestorePropertyAttribute);
-        private static readonly Type FirestorePropertyData = typeof(FirestorePropertyAttribute);
         public string FieldName { get; private set; } = string.Empty;
 
         protected override Expression VisitMember(MemberExpression node)
@@ -26,7 +25,7 @@ namespace Firestore.Typed.Client.Visitor
                 .FirstOrDefault(attribute => attribute.GetType() == FirestorePropertyAttribute);
 
             if (propAttribute is FirestorePropertyAttribute firestoreAttribute
-             && !string.IsNullOrEmpty(firestoreAttribute.Name))
+                && !string.IsNullOrEmpty(firestoreAttribute.Name))
             {
                 AddToFieldName(firestoreAttribute.Name);
                 return base.VisitMember(node);

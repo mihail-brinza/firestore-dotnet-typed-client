@@ -8,6 +8,20 @@
 **A light-weight, strongly-typed Firestore client that allows you to catch query errors before your clients catch
 them :)**
 
+## Installation
+
+```bash
+dotnet add package Firestore.Typed.Client
+```
+
+## Compatibility
+
+This library targets **.NET Standard 2.0**, which means it works with:
+
+- .NET Framework 4.6.1+
+- .NET Core 2.0+
+- .NET 5, 6, 7, 8, 9, 10+
+
 ---
 
 ## Overview
@@ -353,75 +367,53 @@ Everything else (Transactions, Listeners) works exactly as before.
 ## Benchmarks
 
 This section compares the Official Client performance against the Typed client.
-The benchmarks were performed using the Firestore Emulator, with the following computer:
+The benchmarks were performed using the Firestore Emulator with the following setup:
 
 ```
-BenchmarkDotNet=v0.13.1, OS=macOS Monterey 12.5 (21G72) [Darwin 21.6.0]
-Apple M1 Pro, 1 CPU, 10 logical and 10 physical cores
-.NET SDK=6.0.202
-  [Host]     : .NET 6.0.4 (6.0.422.16404), Arm64 RyuJIT
-  DefaultJob : .NET 6.0.4 (6.0.422.16404), Arm64 RyuJIT
+Windows 11, AMD Ryzen 5 7600X 4.70GHz, 6 cores
+.NET SDK 10.0.101, .NET 10.0.1 (x64 RyuJIT x86-64-v4)
+BenchmarkDotNet v0.15.8
 ```
 
 ### 1. Lambda Field Translator Benchmark
 
-Below are the results of translating a **SimpleField** `u => u.FirstName` and a **NestedField** `u.Location.Country`.
+The only real overhead of the Typed Client is translating lambda expressions into Firestore field names.
+Below are the results of translating a **SimpleField** `u => u.FirstName` and a **NestedField** `u => u.Location.Country`.
 
 ```
-|      Method |     Mean |     Error |    StdDev | Allocated |
-|------------ |---------:|----------:|----------:|----------:|
-| SimpleField | 1.503 us | 0.0064 us | 0.0054 us |     696 B |
-| NestedField | 2.936 us | 0.0116 us | 0.0103 us |   1,272 B |
+| Method      | Mean       | Error   | StdDev  | Gen0   | Allocated |
+|------------ |-----------:|--------:|--------:|-------:|----------:|
+| SimpleField |   445.7 ns | 5.11 ns | 4.53 ns | 0.0401 |     672 B |
+| NestedField | 1,017.5 ns | 6.40 ns | 5.00 ns | 0.0725 |    1232 B |
 ```
 
 ### 2. Single Entity Benchmark
 
-This benchmark consists of:
-
-1. Creating a user.
-2. Getting the the user by id
-3. Querying the users by Country.
+This benchmark consists of creating a user, getting it by id, and querying by country.
+Each operation is run 50 times with interleaved typed/official calls for fair comparison.
 
 ```
-|         Method |     Mean |    Error |   StdDev | Allocated |
-|--------------- |---------:|---------:|---------:|----------:|
-|    TypedClient | 41.48 ms | 0.262 ms | 0.205 ms |     54 KB |
-| OfficialClient | 41.79 ms | 0.644 ms | 0.571 ms |     51 KB |
+| Method         |     Mean |
+|--------------- |---------:|
+| TypedClient    | 5.69 ms  |
+| OfficialClient | 6.07 ms  |
 ```
-
-As we can see, the mean time is virtually the same, only the allocated memory is higher because of the lambda to field
-name translation
 
 ### 3. Multiple Entities Benchmark
 
-This benchmark consists of:
-
-1. Generating a list with `numberOfUsers` Users.
-2. Insert the users in batch.
-3. Getting the the user by id.
-4. Query the users by `Age` and `Coutry`.
-5. Delete all users.
+This benchmark consists of inserting users in batch, querying by `Age` and `Country`,
+fetching all documents, and cleaning up. Each size is run 10 times with interleaved calls.
 
 ```
-|         Method | numberOfUsers |     Mean |   Error |  StdDev | Allocated |
-|--------------- |-------------- |---------:|--------:|--------:|----------:|
-| OfficialClient |             1 | 122.7 ms | 0.67 ms | 0.59 ms |     83 KB |
-|    TypedClient |             1 | 123.1 ms | 1.00 ms | 0.83 ms |     84 KB |
-|    TypedClient |             5 | 125.6 ms | 1.32 ms | 1.17 ms |    167 KB |
-| OfficialClient |             5 | 125.6 ms | 1.15 ms | 1.07 ms |    164 KB |
-|    TypedClient |            10 | 128.5 ms | 0.71 ms | 0.59 ms |    271 KB |
-| OfficialClient |            10 | 128.8 ms | 0.65 ms | 0.58 ms |    266 KB |
-|    TypedClient |            50 | 152.0 ms | 1.01 ms | 0.99 ms |  1,089 KB |
-| OfficialClient |            50 | 153.7 ms | 1.41 ms | 1.25 ms |  1,076 KB |
-|    TypedClient |           100 | 184.2 ms | 2.09 ms | 1.74 ms |  2,148 KB |
-| OfficialClient |           100 | 184.4 ms | 2.81 ms | 2.49 ms |  2,101 KB |
-|    TypedClient |           200 | 243.7 ms | 2.66 ms | 2.22 ms |  4,158 KB |
-| OfficialClient |           200 | 247.6 ms | 1.79 ms | 1.50 ms |  4,132 KB |
-|    TypedClient |           400 | 370.4 ms | 5.99 ms | 5.00 ms |  8,247 KB |
-| OfficialClient |           400 | 371.3 ms | 3.75 ms | 3.13 ms |  8,206 KB |
+| Users | TypedClient |  OfficialClient |  Diff |
+|------:|------------:|----------------:|------:|
+|     1 |     7.22 ms |         6.44 ms | +12%  |
+|     5 |     8.02 ms |         7.60 ms |  +6%  |
+|    10 |     7.41 ms |         7.35 ms |  +1%  |
+|    50 |    75.25 ms |        83.21 ms | -10%  |
+|   100 |   101.01 ms |        97.14 ms |  +4%  |
 ```
 
-Although it may seem that the TypedClient is faster in some cases, that is not true since it uses the OfficialClient
-underneath. These differences may be from the task scheduling of the Operating System.
-
-These results are a proof that the performance difference between the TypedClient and the Official one are negligible.
+The differences between the TypedClient and the Official one fluctuate in both directions
+and fall within normal variance for I/O-bound emulator operations. The TypedClient uses the
+OfficialClient underneath, so the performance overhead is negligible.

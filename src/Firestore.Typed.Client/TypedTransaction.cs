@@ -11,14 +11,9 @@ using Google.Cloud.Firestore;
 
 namespace Firestore.Typed.Client
 {
-    public class TypedTransaction<TDocument>
+    public class TypedTransaction<TDocument>(Transaction untyped)
     {
-        public Transaction Untyped { get; }
-
-        public TypedTransaction(Transaction untyped)
-        {
-            Untyped = untyped;
-        }
+        public Transaction Untyped { get; } = untyped;
 
         /// <summary>
         /// The cancellation token for this transaction

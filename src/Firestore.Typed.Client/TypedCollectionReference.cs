@@ -14,10 +14,10 @@ namespace Firestore.Typed.Client
     ///     <typeparam name="TDocument">The type of the elements in the collection</typeparam>
     /// </summary>
     public sealed class TypedCollectionReference<TDocument> : TypedQuery<TDocument>,
-                                                              IEquatable<TypedCollectionReference<TDocument>>,
-                                                              IComparable<TypedCollectionReference<TDocument>>
+        IEquatable<TypedCollectionReference<TDocument>>,
+        IComparable<TypedCollectionReference<TDocument>>
     {
-        public CollectionReference Untyped { get; }
+        public new CollectionReference Untyped { get; }
 
         internal TypedCollectionReference(CollectionReference untyped) : base(untyped)
         {
@@ -47,12 +47,7 @@ namespace Firestore.Typed.Client
         /// </summary>
         internal TypedDocumentReference<TParentCollection>? Parent<TParentCollection>()
         {
-            if (Untyped.Parent is null)
-            {
-                return null;
-            }
-
-            return new TypedDocumentReference<TParentCollection>(Untyped.Parent);
+            return Untyped.Parent is null ? null : new TypedDocumentReference<TParentCollection>(Untyped.Parent);
         }
 
         /// <summary>
@@ -110,7 +105,7 @@ namespace Firestore.Typed.Client
         public async IAsyncEnumerable<TypedDocumentReference<TDocument>> ListDocumentsAsync()
         {
             await foreach (DocumentReference? documentRef in Untyped.ListDocumentsAsync()
-                .ConfigureAwait(false))
+                               .ConfigureAwait(false))
             {
                 yield return new TypedDocumentReference<TDocument>(documentRef);
             }

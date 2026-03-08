@@ -12,25 +12,17 @@ namespace Firestore.Typed.Client
     ///     An immutable snapshot of complete query results.
     ///     <typeparam name="TDocument">The type of the documents in the snapshot</typeparam>
     /// </summary>
-    public sealed class TypedQuerySnapshot<TDocument> : IReadOnlyList<TypedDocumentSnapshot<TDocument>>,
-                                                        IEquatable<TypedQuerySnapshot<TDocument>>
+    public sealed class TypedQuerySnapshot<TDocument>(QuerySnapshot untyped, TypedQuery<TDocument> query) : IReadOnlyList<TypedDocumentSnapshot<TDocument>>,
+        IEquatable<TypedQuerySnapshot<TDocument>>
     {
-        private readonly Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> _lazyTypedChangeList;
-        private readonly Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> _lazyTypedDocuments;
-        public QuerySnapshot Untyped { get; }
-
-        public TypedQuerySnapshot(QuerySnapshot untyped, TypedQuery<TDocument> query)
-        {
-            Query = query;
-            Untyped = untyped;
-            _lazyTypedDocuments = BuildLazyTypedDocuments(untyped);
-            _lazyTypedChangeList = BuildLazyTypedChangeList(untyped);
-        }
+        private readonly Lazy<IReadOnlyList<TypedDocumentChange<TDocument>>> _lazyTypedChangeList = BuildLazyTypedChangeList(untyped);
+        private readonly Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>> _lazyTypedDocuments = BuildLazyTypedDocuments(untyped);
+        public QuerySnapshot Untyped { get; } = untyped;
 
         /// <summary>
         ///     The query producing this snapshot.
         /// </summary>
-        public TypedQuery<TDocument> Query { get; }
+        public TypedQuery<TDocument> Query { get; } = query;
 
         /// <summary>
         ///     The documents in the snapshot.
@@ -79,7 +71,8 @@ namespace Firestore.Typed.Client
             return new Lazy<IReadOnlyList<TypedDocumentSnapshot<TDocument>>>(
                 () => snapshot.Documents
                     .Select(documentSnap => new TypedDocumentSnapshot<TDocument>(documentSnap))
-                    .ToList(), LazyThreadSafetyMode.ExecutionAndPublication);
+                    .ToList(),
+                LazyThreadSafetyMode.ExecutionAndPublication);
         }
 
         /// <inheritdoc />

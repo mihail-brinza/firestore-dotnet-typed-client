@@ -9,20 +9,14 @@ namespace Firestore.Typed.Client
     ///     affected and a the type of change that occurred (added, modified, or removed).
     ///     <typeparam name="TDocument">The type of the changed document</typeparam>
     /// </summary>
-    public sealed class TypedDocumentChange<TDocument> : IEquatable<TypedDocumentChange<TDocument>>
+    public sealed class TypedDocumentChange<TDocument>(DocumentChange documentUntyped) : IEquatable<TypedDocumentChange<TDocument>>
     {
-        public DocumentChange Untyped { get; }
-
-        public TypedDocumentChange(DocumentChange documentUntyped)
-        {
-            Untyped = documentUntyped;
-            Document = new TypedDocumentSnapshot<TDocument>(documentUntyped.Document);
-        }
+        public DocumentChange Untyped { get; } = documentUntyped;
 
         /// <summary>
         ///     The newly added or modified document, or the document that was deleted.
         /// </summary>
-        public TypedDocumentSnapshot<TDocument> Document { get; }
+        public TypedDocumentSnapshot<TDocument> Document { get; } = new(documentUntyped.Document);
 
         /// <summary>
         ///     The type of change that was observed.

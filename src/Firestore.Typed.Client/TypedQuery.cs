@@ -298,7 +298,7 @@ namespace Firestore.Typed.Client
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         You must specify at least one <see cref="OrderBy{TField}(Expression{Func{TDocument,TField}})" /> clause for
+        ///         You must specify at least one <see cref="OrderBy{TField}" /> clause for
         ///         limit-to-last queries. Otherwise,
         ///         an <see cref="InvalidOperationException" /> is thrown during execution.
         ///     </para>
