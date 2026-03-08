@@ -29,7 +29,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Test
-        run: dotnet test --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
       - name: Test Report
         uses: dorny/test-reporter@v2
         if: success() || failure()
@@ -37,6 +37,25 @@ jobs:
           name: .NET Tests
           path: test/Firestore.Typed.Client.Tests/TestResults/test-results.trx
           reporter: dotnet-trx
+      - name: Extract Coverage Percentage
+        id: coverage
+        run: |
+          REPORT=$(find test -name 'coverage.cobertura.xml' | head -1)
+          LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$REPORT")
+          PERCENT=$(echo "$LINE_RATE * 100" | bc -l | xargs printf '%.1f')
+          echo "value=${PERCENT}" >> $GITHUB_OUTPUT
+      - name: Update Coverage Badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: ${{ vars.COVERAGE_GIST_ID }}
+          filename: coverage-badge.json
+          label: coverage
+          message: ${{ steps.coverage.outputs.value }}%
+          valColorRange: ${{ steps.coverage.outputs.value }}
+          minColorRange: 0
+          maxColorRange: 100
 
   publish_nuget:
     needs: build_and_tests
