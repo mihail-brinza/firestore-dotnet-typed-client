@@ -1,7 +1,8 @@
-name: Build and run tests
+name: CI
 
 on:
   push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -12,7 +13,7 @@ env:
 jobs:
   build_and_tests:
     runs-on: ubuntu-latest
-    services: # ramp up a firestore emulator instance
+    services:
       firestore:
         image: mtlynch/firestore-emulator:latest
         ports:
@@ -31,8 +32,23 @@ jobs:
         run: dotnet test --logger "trx;LogFileName=test-results.trx"
       - name: Test Report
         uses: dorny/test-reporter@v2
-        if: success() || failure()    # run this step even if previous step failed
+        if: success() || failure()
         with:
-          name: .NET Tests                  # Name of the check run which will be created
-          path: test/Firestore.Typed.Client.Tests/TestResults/test-results.trx    # Path to test results
-          reporter: dotnet-trx              # Format of test results
+          name: .NET Tests
+          path: test/Firestore.Typed.Client.Tests/TestResults/test-results.trx
+          reporter: dotnet-trx
+
+  publish_nuget:
+    needs: build_and_tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Package
+        run: dotnet pack -c Release -o . src/Firestore.Typed.Client/Firestore.Typed.Client.csproj
+      - name: Publish NuGet
+        run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
