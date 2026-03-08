@@ -41,7 +41,7 @@ jobs:
         id: coverage
         run: |
           REPORT=$(find test -name 'coverage.cobertura.xml' | head -1)
-          LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$REPORT")
+          LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$REPORT" | head -1)
           PERCENT=$(echo "$LINE_RATE * 100" | bc -l | xargs printf '%.1f')
           echo "value=${PERCENT}" >> $GITHUB_OUTPUT
       - name: Update Coverage Badge
