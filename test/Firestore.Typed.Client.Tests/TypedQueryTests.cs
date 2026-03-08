@@ -29,7 +29,7 @@ public class TypedQueryTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _testUtils.DisposeAsync().ConfigureAwait(false);
+        await _testUtils.DisposeAsync();
     }
 
     private async Task CompareAgainstOfficial(
@@ -38,13 +38,13 @@ public class TypedQueryTests : IAsyncLifetime
     )
     {
         TypedQuerySnapshot<User> typedQuerySnapshot =
-            await typedQuery(Collection).GetSnapshotAsync().ConfigureAwait(false);
+            await typedQuery(Collection).GetSnapshotAsync();
 
         IEnumerable<User> typedUsers = typedQuerySnapshot.Documents
             .Select(snap => snap.RequiredObject)
             .ToList();
 
-        QuerySnapshot querySnapshot = await nonTypedQuery(NonTypedCollection).GetSnapshotAsync().ConfigureAwait(false);
+        QuerySnapshot querySnapshot = await nonTypedQuery(NonTypedCollection).GetSnapshotAsync();
 
         var nonTypedUsers = querySnapshot.Documents
             .Select(snap => snap.ConvertTo<User>())
@@ -52,7 +52,6 @@ public class TypedQueryTests : IAsyncLifetime
 
         nonTypedUsers.Should().BeEquivalentTo(typedUsers);
         typedQuerySnapshot.Changes.Should().HaveCount(querySnapshot.Changes.Count);
-        
     }
 
     [Fact]
@@ -163,10 +162,10 @@ public class TypedQueryTests : IAsyncLifetime
     public Task Test_WhereArrayContainsAny()
     {
         string[] phoneNumbers =
-        {
+        [
             RandUser.PhoneNumbers[0],
             Users[1].PhoneNumbers[1]
-        };
+        ];
         return CompareAgainstOfficial(
             col => col
                 .WhereArrayContainsAny(user => user.PhoneNumbers, phoneNumbers)
@@ -180,10 +179,10 @@ public class TypedQueryTests : IAsyncLifetime
     public Task Test_WhereIn()
     {
         string[] names =
-        {
+        [
             RandUser.FirstName,
             Users[1].FirstName
-        };
+        ];
         return CompareAgainstOfficial(
             col => col
                 .WhereIn(user => user.FirstName, names)
@@ -197,10 +196,10 @@ public class TypedQueryTests : IAsyncLifetime
     public Task Test_WhereNotIn()
     {
         string[] names =
-        {
+        [
             RandUser.FirstName,
             Users[1].FirstName
-        };
+        ];
         return CompareAgainstOfficial(
             col => col
                 .OrderBy(user => user.FirstName)
@@ -314,5 +313,163 @@ public class TypedQueryTests : IAsyncLifetime
                 .OrderBy("Age")
                 .EndAt(18)
         );
+    }
+
+    [Fact]
+    public async Task Test_Select_Field_Projection()
+    {
+        TypedQuerySnapshot<User> snapshot = await Collection
+                .Select(user => user.FirstName, user => user.Age)
+                .GetSnapshotAsync()
+            ;
+
+        QuerySnapshot untypedSnapshot = await _testUtils.NonTypedCollection
+                .Select("FirstName", "Age")
+                .GetSnapshotAsync()
+            ;
+
+        snapshot.Count.Should().Be(untypedSnapshot.Count);
+
+        foreach (TypedDocumentSnapshot<User> doc in snapshot.Documents)
+        {
+            doc.ContainsField(user => user.FirstName).Should().BeTrue();
+            doc.ContainsField(user => user.Age).Should().BeTrue();
+            // Non-selected fields should not be present
+            doc.ContainsField(user => user.Location).Should().BeFalse();
+        }
+    }
+
+    [Fact]
+    public async Task Test_StreamAsync()
+    {
+        var streamedUsers = new List<User>();
+
+        await foreach (TypedDocumentSnapshot<User> snapshot in Collection
+                           .OrderBy(user => user.Age)
+                           .StreamAsync()
+                           .ConfigureAwait(false))
+        {
+            streamedUsers.Add(snapshot.RequiredObject);
+        }
+
+        // Compare against GetSnapshotAsync
+        TypedQuerySnapshot<User> querySnapshot = await Collection
+            .OrderBy(user => user.Age)
+            .GetSnapshotAsync();
+
+        var snapshotUsers = querySnapshot.Documents
+            .Select(d => d.RequiredObject)
+            .ToList();
+
+        streamedUsers.Should().BeEquivalentTo(snapshotUsers, options => options.WithStrictOrdering());
+    }
+
+    [Fact]
+    public async Task Test_StartAt_With_Snapshot()
+    {
+        // Get the 3rd document by age ordering
+        TypedQuerySnapshot<User> allOrdered = await Collection
+                .OrderBy(user => user.Age)
+                .GetSnapshotAsync()
+            ;
+
+        if (allOrdered.Count < 3)
+            return; // Not enough data for this test
+
+        TypedDocumentSnapshot<User> cursorDoc = allOrdered[2];
+
+        TypedQuerySnapshot<User> fromCursor = await Collection
+            .OrderBy(user => user.Age)
+            .StartAt(cursorDoc)
+            .GetSnapshotAsync();
+
+        fromCursor.Count.Should().Be(allOrdered.Count - 2);
+        fromCursor[0].RequiredObject.Should().BeEquivalentTo(cursorDoc.RequiredObject);
+    }
+
+    [Fact]
+    public async Task Test_StartAfter_With_Snapshot()
+    {
+        TypedQuerySnapshot<User> allOrdered = await Collection
+            .OrderBy(user => user.Age)
+            .GetSnapshotAsync();
+
+        if (allOrdered.Count < 3)
+            return;
+
+        TypedDocumentSnapshot<User> cursorDoc = allOrdered[2];
+
+        TypedQuerySnapshot<User> afterCursor = await Collection
+            .OrderBy(user => user.Age)
+            .StartAfter(cursorDoc)
+            .GetSnapshotAsync();
+
+        afterCursor.Count.Should().Be(allOrdered.Count - 3);
+    }
+
+    [Fact]
+    public async Task Test_EndBefore_With_Snapshot()
+    {
+        TypedQuerySnapshot<User> allOrdered = await Collection
+            .OrderBy(user => user.Age)
+            .GetSnapshotAsync();
+
+        if (allOrdered.Count < 3)
+            return;
+
+        TypedDocumentSnapshot<User> cursorDoc = allOrdered[2];
+
+        TypedQuerySnapshot<User> beforeCursor = await Collection
+            .OrderBy(user => user.Age)
+            .EndBefore(cursorDoc)
+            .GetSnapshotAsync();
+
+        beforeCursor.Count.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Test_EndAt_With_Snapshot()
+    {
+        TypedQuerySnapshot<User> allOrdered = await Collection
+            .OrderBy(user => user.Age)
+            .GetSnapshotAsync();
+
+        if (allOrdered.Count < 3)
+            return;
+
+        TypedDocumentSnapshot<User> cursorDoc = allOrdered[2];
+
+        TypedQuerySnapshot<User> atCursor = await Collection
+            .OrderBy(user => user.Age)
+            .EndAt(cursorDoc)
+            .GetSnapshotAsync();
+
+        atCursor.Count.Should().Be(3);
+    }
+
+    [Fact]
+    public void Test_Equality()
+    {
+        TypedQuery<User> query1 = Collection.WhereEqualTo(user => user.Age, 25);
+        TypedQuery<User> query2 = Collection.WhereEqualTo(user => user.Age, 25);
+
+        query1.Equals(query2).Should().BeTrue();
+        query1.Equals((object)query2).Should().BeTrue();
+        query1.GetHashCode().Should().Be(query2.GetHashCode());
+    }
+
+    [Fact]
+    public void Test_Database_Property()
+    {
+        TypedQuery<User> query = Collection.WhereEqualTo(user => user.Age, 25);
+        query.Database.Should().Be(_testUtils.Db);
+    }
+
+    [Fact]
+    public void Test_Implicit_Conversion_To_Query()
+    {
+        TypedQuery<User> typedQuery = Collection.WhereEqualTo(user => user.Age, 25);
+        Query untypedQuery = typedQuery;
+        untypedQuery.Should().BeSameAs(typedQuery.Untyped);
     }
 }
