@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Firestore.Typed.Client.Tests.Model;
@@ -203,5 +204,123 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
 
         untypedSnapshot = await untypedDoc.GetSnapshotAsync();
         untypedSnapshot.Exists.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Test_Collection_Subcollection()
+    {
+        TypedDocumentReference<User> docRef = Collection.Document(RandUser.Id);
+        TypedCollectionReference<Location> subCollection = docRef.Collection<Location>("addresses");
+
+        subCollection.Should().NotBeNull();
+        subCollection.Id.Should().Be("addresses");
+        subCollection.Path.Should().Contain(RandUser.Id);
+    }
+
+    [Fact]
+    public void Test_Parent_Collection()
+    {
+        TypedDocumentReference<User> docRef = Collection.Document(RandUser.Id);
+        TypedCollectionReference<User> parent = docRef.Parent<User>();
+
+        parent.Should().NotBeNull();
+        parent.Id.Should().Be(Collection.Id);
+    }
+
+    [Fact]
+    public void Test_ToString()
+    {
+        TypedDocumentReference<User> docRef = Collection.Document(RandUser.Id);
+        string result = docRef.ToString();
+
+        result.Should().NotBeNullOrEmpty();
+        result.Should().Contain(RandUser.Id);
+    }
+
+    [Fact]
+    public void Test_Properties()
+    {
+        TypedDocumentReference<User> docRef = Collection.Document(RandUser.Id);
+
+        docRef.Id.Should().Be(RandUser.Id);
+        docRef.Path.Should().Contain(RandUser.Id);
+        docRef.Database.Should().Be(_testUtils.Db);
+    }
+
+    [Fact]
+    public void Test_Equality()
+    {
+        TypedDocumentReference<User> doc1 = Collection.Document(RandUser.Id);
+        TypedDocumentReference<User> doc2 = Collection.Document(RandUser.Id);
+
+        doc1.Equals(doc2).Should().BeTrue();
+        doc1.Equals((object)doc2).Should().BeTrue();
+        doc1.GetHashCode().Should().Be(doc2.GetHashCode());
+    }
+
+    [Fact]
+    public void Test_CompareTo()
+    {
+        TypedDocumentReference<User> doc1 = Collection.Document(RandUser.Id);
+        TypedDocumentReference<User> doc2 = Collection.Document(RandUser.Id);
+
+        doc1.CompareTo(doc2).Should().Be(0);
+    }
+
+    [Fact]
+    public void Test_Implicit_Conversion_To_DocumentReference()
+    {
+        TypedDocumentReference<User> typedDoc = Collection.Document(RandUser.Id);
+        DocumentReference untypedDoc = typedDoc;
+
+        untypedDoc.Should().BeSameAs(typedDoc.Untyped);
+    }
+
+    [Fact]
+    public void Test_Implicit_Conversion_From_DocumentReference()
+    {
+        DocumentReference untypedDoc = NonTypedCollection.Document(RandUser.Id);
+        TypedDocumentReference<User> typedDoc = untypedDoc;
+
+        typedDoc.Untyped.Should().BeSameAs(untypedDoc);
+    }
+
+    [Fact]
+    public async Task Test_Listen_Sync_Callback()
+    {
+        TypedDocumentReference<User> docRef = Collection.Document(RandUser.Id);
+        TypedDocumentSnapshot<User>? receivedSnapshot = null;
+        var tcs = new TaskCompletionSource<bool>();
+
+        FirestoreChangeListener listener = docRef.Listen(snapshot =>
+        {
+            receivedSnapshot = snapshot;
+            tcs.TrySetResult(true);
+        });
+
+        // Wait for the initial snapshot
+        using var cts = new CancellationTokenSource(5000);
+        cts.Token.Register(() => tcs.TrySetCanceled());
+        await tcs.Task;
+
+        receivedSnapshot.Should().NotBeNull();
+        receivedSnapshot!.Exists.Should().BeTrue();
+        receivedSnapshot.RequiredObject.Should().BeEquivalentTo(RandUser);
+
+        await listener.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task Test_SetAsync_Untyped_Overload()
+    {
+        TypedDocumentReference<User> docRef = Collection.Document(RandUser.Id);
+
+        await docRef.SetAsync(new { Age = 99, FirstName = "Untyped" }, SetOptions.MergeAll);
+
+        TypedDocumentSnapshot<User> snapshot = await docRef.GetSnapshotAsync();
+        snapshot.GetValue(user => user.Age).Should().Be(99);
+        snapshot.GetValue(user => user.FirstName).Should().Be("Untyped");
+        // Merged fields should keep existing values
+        snapshot.GetValue(user => user.LastName).Should().Be(RandUser.LastName);
     }
 }
