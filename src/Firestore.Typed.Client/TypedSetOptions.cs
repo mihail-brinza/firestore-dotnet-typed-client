@@ -9,11 +9,9 @@ namespace Firestore.Typed.Client
 {
     public class TypedSetOptions<TDocument>
     {
-        public static readonly TypedSetOptions<TDocument> Overwrite =
-            new TypedSetOptions<TDocument>(SetOptions.Overwrite);
+        public static readonly TypedSetOptions<TDocument> Overwrite = new(SetOptions.Overwrite);
 
-        public static readonly TypedSetOptions<TDocument>
-            MergeAll = new TypedSetOptions<TDocument>(SetOptions.MergeAll);
+        public static readonly TypedSetOptions<TDocument> MergeAll = new(SetOptions.MergeAll);
 
         internal SetOptions SetOptions { get; }
 

@@ -1,0 +1,5 @@
+services:
+  firestore:
+    image: mtlynch/firestore-emulator:latest
+    ports:
+      - "8080:8080"

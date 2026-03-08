@@ -6,19 +6,13 @@ using System.Threading.Tasks;
 
 using Firestore.Typed.Client.Extensions;
 
-using Google.Api.Gax;
 using Google.Cloud.Firestore;
 
 namespace Firestore.Typed.Client
 {
-    public class TypedWriteBatch<TDocument>
+    public class TypedWriteBatch<TDocument>(WriteBatch untyped)
     {
-        public WriteBatch Untyped { get; private set; }
-
-        public TypedWriteBatch(WriteBatch untyped)
-        {
-            Untyped = untyped;
-        }
+        public WriteBatch Untyped { get; private set; } = untyped;
 
         /// <summary>
         /// Adds a write operation which will create the specified document with a precondition

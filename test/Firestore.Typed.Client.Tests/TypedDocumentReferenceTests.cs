@@ -11,6 +11,7 @@ using Google.Cloud.Firestore;
 using Grpc.Core;
 
 using Xunit;
+// ReSharper disable UseConfigureAwaitFalse
 
 namespace Firestore.Typed.Client.Tests;
 
@@ -38,8 +39,8 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
     {
         const int newAge = 83;
         TypedDocumentReference<User> documentReference = Collection.Document(RandUser.Id);
-        WriteResult _ = await documentReference.UpdateAsync(user => user.Age, newAge).ConfigureAwait(false);
-        TypedDocumentSnapshot<User> snapshot = await documentReference.GetSnapshotAsync().ConfigureAwait(false);
+        WriteResult _ = await documentReference.UpdateAsync(user => user.Age, newAge);
+        TypedDocumentSnapshot<User> snapshot = await documentReference.GetSnapshotAsync();
         snapshot.GetValue(user => user.Age).Should().Be(newAge);
     }
 
@@ -55,9 +56,9 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
 
         TypedDocumentReference<User> documentReference = Collection.Document(RandUser.Id);
 
-        WriteResult _ = await documentReference.UpdateAsync(update).ConfigureAwait(false);
+        WriteResult _ = await documentReference.UpdateAsync(update);
 
-        TypedDocumentSnapshot<User> snapshot = await documentReference.GetSnapshotAsync().ConfigureAwait(false);
+        TypedDocumentSnapshot<User> snapshot = await documentReference.GetSnapshotAsync();
 
         snapshot.ContainsField(user => user.FirstName).Should().BeTrue();
         snapshot.ContainsField(user => user.Age).Should().BeTrue();
@@ -83,9 +84,9 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
 
         TypedDocumentReference<User> documentReference = Collection.Document(RandUser.Id);
 
-        WriteResult _ = await documentReference.SetAsync(userToReplace).ConfigureAwait(false);
+        WriteResult _ = await documentReference.SetAsync(userToReplace);
 
-        TypedDocumentSnapshot<User> replacedUser = await documentReference.GetSnapshotAsync().ConfigureAwait(false);
+        TypedDocumentSnapshot<User> replacedUser = await documentReference.GetSnapshotAsync();
         replacedUser.RequiredObject.Should().BeEquivalentTo(userToReplace);
     }
 
@@ -97,9 +98,9 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
         WriteResult _ = await documentReference.SetAsync(new User
         {
             Age = newAge
-        }, TypedSetOptions<User>.MergeFields(u => u.Age)).ConfigureAwait(false);
+        }, TypedSetOptions<User>.MergeFields(u => u.Age));
 
-        TypedDocumentSnapshot<User> mergedUser = await documentReference.GetSnapshotAsync().ConfigureAwait(false);
+        TypedDocumentSnapshot<User> mergedUser = await documentReference.GetSnapshotAsync();
         RandUser.Age = newAge;
         mergedUser.RequiredObject.Should().BeEquivalentTo(RandUser);
     }
@@ -110,24 +111,24 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
         // Create typed user
         TypedDocumentReference<User> typedDoc = Collection.Document();
         User typedUser = new UserFaker().FinishWith(((faker, user) => user.Id = typedDoc.Id)).Generate();
-        WriteResult typedWriteResult = await typedDoc.CreateAsync(typedUser).ConfigureAwait(false);
+        WriteResult typedWriteResult = await typedDoc.CreateAsync(typedUser);
 
         // Create untyped user
         DocumentReference untypedDoc = NonTypedCollection.Document();
         User untypedUser = new UserFaker().FinishWith(((_, user) => user.Id = untypedDoc.Id)).Generate();
-        WriteResult untypedWriteResult = await untypedDoc.CreateAsync(untypedUser).ConfigureAwait(false);
+        WriteResult untypedWriteResult = await untypedDoc.CreateAsync(untypedUser);
 
         // Assert document references and write results
         typedWriteResult.Should().NotBeNull();
         untypedWriteResult.Should().NotBeNull();
 
         // Get snapshot to ensure that object was created
-        TypedDocumentSnapshot<User> typedSnapshot = await typedDoc.GetSnapshotAsync().ConfigureAwait(false);
+        TypedDocumentSnapshot<User> typedSnapshot = await typedDoc.GetSnapshotAsync();
         typedSnapshot.Exists.Should().BeTrue();
         typedSnapshot.RequiredObject.Should().BeEquivalentTo(typedUser);
 
         // Get snapshot to ensure that object was created
-        DocumentSnapshot untypedSnapshot = await untypedDoc.GetSnapshotAsync().ConfigureAwait(false);
+        DocumentSnapshot untypedSnapshot = await untypedDoc.GetSnapshotAsync();
         untypedSnapshot.Exists.Should().BeTrue();
         untypedSnapshot.ConvertTo<User>().Should().BeEquivalentTo(untypedUser);
     }
@@ -142,14 +143,14 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
         await typedDoc
             .Invoking(doc => doc.DeleteAsync(Precondition.None)).Should()
             .NotThrowAsync()
-            .ConfigureAwait(false);
+;
 
         // Create untyped user
         DocumentReference untypedDoc = NonTypedCollection.Document();
         await untypedDoc
             .Invoking(doc => doc.DeleteAsync(Precondition.None)).Should()
             .NotThrowAsync()
-            .ConfigureAwait(false);
+;
     }
 
     [Fact]
@@ -161,14 +162,14 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
         await typedDoc
             .Invoking(doc => doc.DeleteAsync(Precondition.MustExist)).Should()
             .ThrowExactlyAsync<RpcException>()
-            .ConfigureAwait(false);
+;
 
         // Create untyped user
         DocumentReference untypedDoc = NonTypedCollection.Document();
         await untypedDoc
             .Invoking(doc => doc.DeleteAsync(Precondition.MustExist)).Should()
             .ThrowExactlyAsync<RpcException>()
-            .ConfigureAwait(false);
+;
     }
 
     /// <summary>
@@ -180,27 +181,27 @@ public class TypedDocumentReferenceTests : IAsyncLifetime
     {
         // Typed case
         TypedDocumentReference<User> typedDoc = Collection.Document(RandUser.Id);
-        TypedDocumentSnapshot<User> typedSnapshot = await typedDoc.GetSnapshotAsync().ConfigureAwait(false);
+        TypedDocumentSnapshot<User> typedSnapshot = await typedDoc.GetSnapshotAsync();
         typedSnapshot.Exists.Should().BeTrue();
         await typedDoc
             .Invoking(doc => doc.DeleteAsync(Precondition.MustExist)).Should()
             .NotThrowAsync()
-            .ConfigureAwait(false);
+;
 
-        typedSnapshot = await typedDoc.GetSnapshotAsync().ConfigureAwait(false);
+        typedSnapshot = await typedDoc.GetSnapshotAsync();
         typedSnapshot.Exists.Should().BeFalse();
 
         // UnTyped case
         DocumentReference untypedDoc = NonTypedCollection.Document(RandUser.Id);
-        DocumentSnapshot untypedSnapshot = await untypedDoc.GetSnapshotAsync().ConfigureAwait(false);
+        DocumentSnapshot untypedSnapshot = await untypedDoc.GetSnapshotAsync();
         untypedSnapshot.Exists.Should().BeTrue();
 
         await untypedDoc
             .Invoking(doc => doc.DeleteAsync(Precondition.MustExist)).Should()
             .NotThrowAsync()
-            .ConfigureAwait(false);
+;
 
-        untypedSnapshot = await untypedDoc.GetSnapshotAsync().ConfigureAwait(false);
+        untypedSnapshot = await untypedDoc.GetSnapshotAsync();
         untypedSnapshot.Exists.Should().BeFalse();
     }
 }

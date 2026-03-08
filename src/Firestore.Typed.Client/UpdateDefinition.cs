@@ -27,11 +27,6 @@ namespace Firestore.Typed.Client
         public UpdateDefinition<TDocument> Set<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
             string fieldName = field.GetFieldName();
-            if (UpdateValues.TryAdd(fieldName, value))
-            {
-                return this;
-            }
-
             UpdateValues[fieldName] = value;
             return this;
         }

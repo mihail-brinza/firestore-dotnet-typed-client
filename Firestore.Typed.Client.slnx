@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/solution items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/solution items/Workflows/">
+    <File Path=".github/workflows/build_and_tests.yml" />
+    <File Path=".github/workflows/publish_nuget.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Firestore.Typed.Client/Firestore.Typed.Client.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Firestore.Typed.Client.Benchmarks/Firestore.Typed.Client.Benchmarks.csproj" />
+    <Project Path="test/Firestore.Typed.Client.Tests/Firestore.Typed.Client.Tests.csproj" />
+  </Folder>
+</Solution>

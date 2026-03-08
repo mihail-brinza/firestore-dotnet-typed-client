@@ -1,143 +1,132 @@
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Order;
+using System.Diagnostics;
 
 using Firestore.Typed.Client.Extensions;
 using Firestore.Typed.Client.Tests.Model;
 using Firestore.Typed.Client.Tests.Utils;
 
-using Google.Api.Gax;
 using Google.Cloud.Firestore;
 
 namespace Firestore.Typed.Client.Benchmarks;
 
-[RankColumn]
-[MemoryDiagnoser]
-[Orderer(SummaryOrderPolicy.FastestToSlowest)]
-public class ClientsComparerBenchmark
+/// <summary>
+/// Compares Typed vs Official Firestore client performance using a simple timing approach.
+/// BenchmarkDotNet is not suitable here because it spawns separate processes per benchmark,
+/// overwhelming the Firestore emulator with rapid gRPC connection cycling.
+/// </summary>
+public static class ClientsComparerBenchmark
 {
-    private readonly IDictionary<int, List<User>> _typedUsers;
-    private readonly IDictionary<int, List<User>> _untypedUsers;
+    private static readonly int[] UserCounts = [1, 5, 10, 50, 100];
+    private const int Iterations = 10;
 
-    private readonly FirestoreDb _firestoreDb = new FirestoreDbBuilder
+    public static async Task Run()
     {
-        ProjectId         = Environment.GetEnvironmentVariable("FIRESTORE_PROJECT_ID"),
-        EmulatorDetection = EmulatorDetection.EmulatorOnly
-    }.Build();
+        FirestoreDb db = TestUtils.CreateEmulatorDb();
 
+        // Warm up gRPC channel
+        var warmup = db.Collection("warmup").Document();
+        await warmup.CreateAsync(new { init = true });
+        await warmup.DeleteAsync();
 
-    public ClientsComparerBenchmark()
-    {
-        _typedUsers = new Dictionary<int, List<User>>
+        Console.WriteLine($"{"Users",-8} {"TypedClient",-18} {"OfficialClient",-18} {"Diff",-10}");
+        Console.WriteLine(new string('-', 56));
+
+        foreach (int count in UserCounts)
         {
-            [1]   = new UserFaker().Generate(1),
-            [5]   = new UserFaker().Generate(5),
-            [10]  = new UserFaker().Generate(10),
-            [50]  = new UserFaker().Generate(50),
-            [100] = new UserFaker().Generate(100),
-            [200] = new UserFaker().Generate(200),
-            [400] = new UserFaker().Generate(400),
-        };
-        _untypedUsers = _typedUsers.ToDictionary(pair => pair.Key, pair => pair.Value.ToList());
+            List<User> users = new UserFaker().Generate(count);
+
+            (double typedMs, double officialMs) = await RunInterleaved(db, users);
+            double diff = ((typedMs - officialMs) / officialMs) * 100;
+
+            Console.WriteLine($"{count,-8} {typedMs,12:F2} ms    {officialMs,12:F2} ms    {diff,+6:F1}%");
+        }
     }
 
-    [Benchmark]
-    [Arguments(1)]
-    [Arguments(5)]
-    [Arguments(10)]
-    [Arguments(50)]
-    [Arguments(100)]
-    [Arguments(200)]
-    [Arguments(400)]
-    public async Task TypedClient(int numberOfUsers)
+    private static async Task<(double typedMs, double officialMs)> RunInterleaved(
+        FirestoreDb db, List<User> users)
     {
-        List<User> users = _typedUsers[numberOfUsers];
-        // Get a random collection
-        TypedCollectionReference<User> collection = _firestoreDb.TypedCollection<User>(Guid.NewGuid().ToString());
+        // Warmup
+        await RunTypedClient(db, users);
+        await RunOfficialClient(db, users);
 
-        // Add all users in batch
-        TypedWriteBatch<User> batch = _firestoreDb.StartTypedBatch<User>();
-        foreach (User user in users)
+        var typedSw = new Stopwatch();
+        var officialSw = new Stopwatch();
+
+        for (int i = 0; i < Iterations; i++)
         {
-            TypedDocumentReference<User> documentRef = collection.Document();
-            user.Id = documentRef.Id;
-            batch.Create(documentRef, user);
+            typedSw.Start();
+            await RunTypedClient(db, users);
+            typedSw.Stop();
+
+            officialSw.Start();
+            await RunOfficialClient(db, users);
+            officialSw.Stop();
         }
 
-        // Commit results
-        IList<WriteResult> writeResults = await batch.CommitAsync().ConfigureAwait(false);
+        return (typedSw.Elapsed.TotalMilliseconds / Iterations,
+                officialSw.Elapsed.TotalMilliseconds / Iterations);
+    }
 
-        // Query users
-        TypedQuerySnapshot<User> adultsFromPortugalQuery = await collection
+    private static async Task RunTypedClient(FirestoreDb db, List<User> users)
+    {
+        TypedCollectionReference<User> collection = db.TypedCollection<User>(Guid.NewGuid().ToString());
+
+        TypedWriteBatch<User> batch = db.StartTypedBatch<User>();
+        foreach (User user in users)
+        {
+            batch.Create(collection.Document(), user);
+        }
+
+        await batch.CommitAsync();
+
+        await collection
             .WhereGreaterThanOrEqualTo(user => user.Age, users[0].Age)
             .WhereEqualTo(user => user.Location.Country, users[0].Location.Country)
             .OrderByDescending(user => user.Age)
-            .GetSnapshotAsync()
-            .ConfigureAwait(false);
+            .GetSnapshotAsync();
 
-        // Get the snapshots
-        TypedQuerySnapshot<User> snapshot = await collection.GetSnapshotAsync().ConfigureAwait(false);
+        TypedQuerySnapshot<User> snapshot = await collection.GetSnapshotAsync();
 
-        // Delete all users
-        IReadOnlyList<TypedDocumentSnapshot<User>> documents = snapshot.Documents;
-        while (documents.Count > 0)
+        WriteBatch deleteBatch = db.StartBatch();
+        foreach (TypedDocumentSnapshot<User> doc in snapshot.Documents)
         {
-            foreach (TypedDocumentSnapshot<User> document in documents)
-            {
-                await document.Reference.DeleteAsync().ConfigureAwait(false);
-            }
+            deleteBatch.Delete(doc.Reference.Untyped);
+        }
 
-            snapshot  = await collection.GetSnapshotAsync().ConfigureAwait(false);
-            documents = snapshot.Documents;
+        if (snapshot.Documents.Count > 0)
+        {
+            await deleteBatch.CommitAsync();
         }
     }
 
-    [Benchmark]
-    [Arguments(1)]
-    [Arguments(5)]
-    [Arguments(10)]
-    [Arguments(50)]
-    [Arguments(100)]
-    [Arguments(200)]
-    [Arguments(400)]
-    public async Task OfficialClient(int numberOfUsers)
+    private static async Task RunOfficialClient(FirestoreDb db, List<User> users)
     {
-        List<User> users = _untypedUsers[numberOfUsers];
-        // Get a random collection
-        CollectionReference collection = _firestoreDb.Collection(Guid.NewGuid().ToString());
-        // Add all users in batch
-        WriteBatch batch = _firestoreDb.StartBatch();
+        CollectionReference collection = db.Collection(Guid.NewGuid().ToString());
+
+        WriteBatch batch = db.StartBatch();
         foreach (User user in users)
         {
-            DocumentReference documentRef = collection.Document();
-            user.Id = documentRef.Id;
-            batch.Create(documentRef, user);
+            batch.Create(collection.Document(), user);
         }
 
-        // Commit results
-        IList<WriteResult> writeResults = await batch.CommitAsync().ConfigureAwait(false);
+        await batch.CommitAsync();
 
-        // Query users
-        QuerySnapshot adultsFromPortugalQuery = await collection
+        await collection
             .WhereGreaterThanOrEqualTo("Age", users[0].Age)
             .WhereEqualTo("Location.home_country", users[0].Location.Country)
             .OrderByDescending("Age")
-            .GetSnapshotAsync()
-            .ConfigureAwait(false);
+            .GetSnapshotAsync();
 
-        // Get the snapshots
-        QuerySnapshot snapshot = await collection.GetSnapshotAsync().ConfigureAwait(false);
+        QuerySnapshot snapshot = await collection.GetSnapshotAsync();
 
-        // Delete all users
-        IReadOnlyList<DocumentSnapshot> documents = snapshot.Documents;
-        while (documents.Count > 0)
+        WriteBatch deleteBatch = db.StartBatch();
+        foreach (DocumentSnapshot doc in snapshot.Documents)
         {
-            foreach (DocumentSnapshot document in documents)
-            {
-                await document.Reference.DeleteAsync().ConfigureAwait(false);
-            }
+            deleteBatch.Delete(doc.Reference);
+        }
 
-            snapshot  = await collection.GetSnapshotAsync().ConfigureAwait(false);
-            documents = snapshot.Documents;
+        if (snapshot.Documents.Count > 0)
+        {
+            await deleteBatch.CommitAsync();
         }
     }
 }

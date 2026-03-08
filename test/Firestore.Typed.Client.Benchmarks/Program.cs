@@ -1,15 +1,23 @@
 using BenchmarkDotNet.Running;
 
-namespace Firestore.Typed.Client.Benchmarks;
+using Firestore.Typed.Client.Benchmarks;
 
-public class Program
+if (args.Contains("--comparer"))
 {
-    public static void Main(string[] args)
-    {
-        Console.WriteLine(Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"));
-        Console.WriteLine(Environment.GetEnvironmentVariable("FIRESTORE_PROJECT_ID"));
-        BenchmarkRunner.Run<ClientsComparerBenchmark>();
-        //  BenchmarkRunner.Run<SingleQueryCompareBenchmark>();
-        // BenchmarkRunner.Run<FieldVisitorBenchmark>();
-    }
+    await ClientsComparerBenchmark.Run();
+}
+else if (args.Contains("--single"))
+{
+    await SingleQueryCompareBenchmark.Run();
+}
+else if (args.Contains("--field"))
+{
+    BenchmarkRunner.Run<FieldVisitorBenchmark>();
+}
+else
+{
+    Console.WriteLine("Usage:");
+    Console.WriteLine("  --field      Run FieldVisitor micro-benchmark (BenchmarkDotNet)");
+    Console.WriteLine("  --comparer   Run multi-entity Typed vs Official comparison");
+    Console.WriteLine("  --single     Run single-entity Typed vs Official comparison");
 }

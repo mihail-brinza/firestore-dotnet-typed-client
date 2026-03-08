@@ -16,25 +16,24 @@ namespace Firestore.Typed.Client.Tests.Utils;
 
 public class TestUtils : IAsyncDisposable
 {
+    private const string DefaultEmulatorHost = "localhost:8080";
+    private const string DefaultProjectId = "firestore-emulator-project";
+
     public IReadOnlyList<User> Users { get; } = new UserFaker().GenerateBetween(5, 30);
     public User RandUser { get; }
     public string CollectionId { get; } = Guid.NewGuid().ToString();
     public string NonTypedCollectionId { get; } = Guid.NewGuid().ToString();
 
-    public FirestoreDb Db { get; } = new FirestoreDbBuilder
-    {
-        ProjectId         = Environment.GetEnvironmentVariable("FIRESTORE_PROJECT_ID"),
-        EmulatorDetection = EmulatorDetection.EmulatorOnly
-    }.Build();
+    public FirestoreDb Db { get; } = CreateEmulatorDb();
 
     public TypedCollectionReference<User> Collection { get; }
     public CollectionReference NonTypedCollection { get; }
 
     public TestUtils()
     {
-        Collection         = Db.TypedCollection<User>(CollectionId);
+        Collection = Db.TypedCollection<User>(CollectionId);
         NonTypedCollection = Db.Collection(NonTypedCollectionId);
-        RandUser           = Users[Random.Shared.Next(0, Users.Count)];
+        RandUser = Users[Random.Shared.Next(0, Users.Count)];
     }
 
     public Task Init()
@@ -86,7 +85,7 @@ public class TestUtils : IAsyncDisposable
                 await document.Reference.DeleteAsync().ConfigureAwait(false);
             }
 
-            snapshot  = await Collection.GetSnapshotAsync().ConfigureAwait(false);
+            snapshot = await Collection.GetSnapshotAsync().ConfigureAwait(false);
             documents = snapshot.Documents;
         }
     }
@@ -102,8 +101,22 @@ public class TestUtils : IAsyncDisposable
                 await document.Reference.DeleteAsync().ConfigureAwait(false);
             }
 
-            snapshot  = await NonTypedCollection.GetSnapshotAsync().ConfigureAwait(false);
+            snapshot = await NonTypedCollection.GetSnapshotAsync().ConfigureAwait(false);
             documents = snapshot.Documents;
         }
+    }
+
+    public static FirestoreDb CreateEmulatorDb(string defaultHost = DefaultEmulatorHost, string defaultProjectId = DefaultProjectId)
+    {
+        string host = Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST") ?? defaultHost;
+        string projectId = Environment.GetEnvironmentVariable("FIRESTORE_PROJECT_ID") ?? defaultProjectId;
+
+        Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", host);
+
+        return new FirestoreDbBuilder
+        {
+            ProjectId = projectId,
+            EmulatorDetection = EmulatorDetection.EmulatorOnly
+        }.Build();
     }
 }

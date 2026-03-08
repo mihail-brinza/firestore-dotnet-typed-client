@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <DebugType>embedded</DebugType>
         <IsPackable>true</IsPackable>
         <PackageId>Firestore.Typed.Client</PackageId>
-        <PackageVersion>1.1.0</PackageVersion>
+        <PackageVersion>2.0.0</PackageVersion>
         <Authors>Mihail Brinza</Authors>
         <Description>
             A wrapper on top of the official Firestore Client that adds type safety to your queries while
@@ -18,18 +18,20 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/mihail-brinza/firestore-dotnet-typed-client</RepositoryUrl>
         <PackageTags>firebase firestore client typed cloud</PackageTags>
-        <PackageLicenseFile>License</PackageLicenseFile>
+        <Copyright>Copyright 2026 Mihail Brinza</Copyright>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Cloud.Firestore" Version="3.4.0" />
+        <PackageReference Include="Google.Cloud.Firestore" />
+        <PackageReference Include="PolySharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-        <None Include="..\..\License" Pack="true" PackagePath="" />
-    </ItemGroup>
     <ItemGroup>
         <None Include="..\..\README.md" Pack="true" PackagePath="" />
     </ItemGroup>

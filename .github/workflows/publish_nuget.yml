@@ -1,20 +1,22 @@
 name: Publish to NuGet.org
 
-# Controls when the workflow will run
 on:
   workflow_run:
     workflows: [ "Build and run tests" ]
     types: [ completed ]
     branches: [ main ]
+
 jobs:
   publish_nuget:
     runs-on: ubuntu-latest
-    # Steps represent a sequence of tasks that will be executed as part of the job 
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
       - name: Package
         run: dotnet pack -c Release -o . src/Firestore.Typed.Client/Firestore.Typed.Client.csproj
       - name: Publish Nuget
         run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
-      - name: Publish Symbols
-        run: dotnet nuget push *.snupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
