@@ -46,7 +46,7 @@ jobs:
           echo "value=${PERCENT}" >> $GITHUB_OUTPUT
       - name: Update Coverage Badge
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: schneegans/dynamic-badges-action@v1.7
+        uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{ secrets.GIST_TOKEN }}
           gistID: ${{ vars.COVERAGE_GIST_ID }}
