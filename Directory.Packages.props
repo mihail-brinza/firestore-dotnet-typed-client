@@ -6,7 +6,7 @@
 
     <ItemGroup>
         <!-- Main library -->
-        <PackageVersion Include="Google.Cloud.Firestore" Version="4.2.0"/>
+        <PackageVersion Include="Google.Cloud.Firestore" Version="4.3.0"/>
         <PackageVersion Include="PolySharp" Version="1.16.0"/>
 
         <!-- Testing -->
